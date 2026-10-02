@@ -1,4 +1,4 @@
-# Turnos EDS v0.6
+# Turnos EDS v0.7
 
 Versión reconstruida sobre la v0.5, conservando PT, VAC manual, LM, compensatorios, versiones, cobertura y exportación/importación.
 
@@ -42,3 +42,10 @@ No requiere dependencias.
 2. publicar el repositorio en GitHub Pages / Vercel.
 
 El inicio del ciclo debe ser un lunes para mantener la estructura semanal del superciclo.
+
+
+## Ajuste v0.7
+- M1 limitado a 6 atendedores de lunes a viernes.
+- Cobertura aceptada 06:00–07:00: mínimo 8 (6 M1 + 2 N).
+- Desde las 07:00 se mantiene mínimo crítico de 9.
+- Resto de reglas v0.6 se conserva sin cambios.
