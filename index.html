@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Planificador Maestro de Turnos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div><div class="eyebrow">EDS · PLANIFICACIÓN 24/7</div><h1>Planificador Maestro de Turnos</h1><p>Primera versión operativa · ciclo continuo de 4 semanas</p></div>
+      <div class="top-actions">
+        <button id="selectBtn" class="btn secondary">☑ Atendedores</button>
+        <button id="licenseBtn" class="btn danger">✚ Licencia médica</button>
+        <button id="generateBtn" class="btn primary">↻ Generar versión</button>
+      </div>
+    </header>
+    <section id="summary" class="summary-grid"></section>
+    <section class="toolbar"><div id="weekTabs" class="week-tabs"></div><div id="notice" class="notice"></div></section>
+    <section class="calendar-card"><div class="table-scroll"><table><thead id="calendarHead"></thead><tbody id="calendarBody"></tbody></table></div></section>
+    <section class="coverage-section"><div class="section-head"><div><h2>Cobertura de la semana</h2><p>Conteo por familia; LM y libres no cuentan como activos.</p></div></div><div id="coverage" class="coverage-grid"></div></section>
+    <section class="rules"><h2>Reglas activas</h2><div id="rules" class="rule-grid"></div></section>
+    <div id="alert"></div>
+  </main>
+  <div id="modalRoot"></div>
+  <script src="app.js"></script>
+</body>
+</html>

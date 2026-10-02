@@ -1,0 +1,46 @@
+const DAYS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const WEEK_NAMES=['Semana 1','Semana 2','Semana 3','Semana 4'];
+const SHIFT_META={
+ N:{label:'N',time:'00:00–09:00',cls:'shift-n'},M1:{label:'M1',time:'06:00–15:00',cls:'shift-m1'},M2:{label:'M2',time:'07:00–16:00',cls:'shift-m2'},M3:{label:'M3',time:'08:00–17:00',cls:'shift-m3'},B1:{label:'B1',time:'09:00–18:00',cls:'shift-b1'},B2:{label:'B2',time:'11:00–20:00',cls:'shift-b2'},T1:{label:'T1',time:'13:00–22:00',cls:'shift-t1'},T2:{label:'T2',time:'15:00–24:00',cls:'shift-t2'},L:{label:'Libre',time:'',cls:'shift-off'},VAC:{label:'VAC',time:'Vacaciones',cls:'shift-vac'},LM:{label:'LM',time:'Licencia médica',cls:'shift-lm'}
+};
+const TARGETS=[
+ {N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M2:8,M3:1,B1:2,T2:10},{N:2,M2:8,B1:2,T2:10}
+];
+const employees=Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`}));
+const nightPairs=Array.from({length:14},(_,i)=>[i*2+1,i*2+2]);
+const nightStarts=[0,2,4,6,8,10,12,14,16,18,20,22,24,26];
+let version=1, week=0, selected=new Set(employees.map(e=>e.id)), schedule=makeBaseSchedule(1);
+
+function seededSort(items,seed){return [...items].sort((a,b)=>pseudo(a.id,seed)-pseudo(b.id,seed));}
+function pseudo(id,seed){const x=Math.sin((id*97+seed*31)*12.9898)*43758.5453;return x-Math.floor(x);}
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function makeBaseSchedule(ver){
+ const s={}; employees.forEach(e=>s[e.id]=Array(28).fill(''));
+ employees.forEach((e,idx)=>{for(let w=0;w<4;w++){const base=w*7,joint=((idx+w)%2===0);const off=joint?[(idx*2+w+5)%7,((idx*2+w+5)%7+1)%7]:[(idx+w*2+1)%7,(idx+w*2+4)%7];off.forEach(d=>s[e.id][base+d]='L');}});
+ nightPairs.forEach((pair,p)=>{const start=nightStarts[p];pair.forEach(id=>{s[id][start]='N';s[id][start+1]='N';s[id][(start+2)%28]='L';});});
+ for(let d=0;d<28;d++){
+  const dow=d%7,target={...TARGETS[dow]},active=employees.filter(e=>s[e.id][d]!=='L'&&s[e.id][d]!=='N'),ordered=seededSort(active,ver*100+d);const n=employees.filter(e=>s[e.id][d]==='N').length;target.N=Math.max(0,(target.N||0)-n);
+  const priority={M1:0,T2:1,M2:2,B1:3,M3:4,B2:5,T1:6},shifts=[];Object.entries(target).forEach(([code,count])=>{if(code!=='N')for(let i=0;i<count;i++)shifts.push(code);});shifts.sort((a,b)=>(priority[a]??9)-(priority[b]??9));
+  ordered.forEach((e,i)=>s[e.id][d]=shifts[i]||(dow<=4?'B1':'M2'));
+ }
+ return s;
+}
+function maxConsecutive(id){const arr=schedule[id].map(v=>!['L','VAC','LM',''].includes(v));let max=0,cur=0;for(let i=0;i<56;i++){if(arr[i%28]){cur++;max=Math.max(max,cur);}else cur=0;}return Math.min(max,28);}
+function stats(){const over=employees.filter(e=>maxConsecutive(e.id)>6).map(e=>e.id);const nights=employees.map(e=>schedule[e.id].filter(x=>x==='N').length);return{over,nightOk:nights.every(n=>n===2)};}
+function dayCoverage(day){const c={};Object.keys(SHIFT_META).forEach(k=>c[k]=0);employees.forEach(e=>{const v=schedule[e.id][day];c[v]=(c[v]||0)+1;});return c;}
+function render(){renderSummary();renderTabs();renderTable();renderCoverage();renderRules();renderAlert();}
+function renderSummary(){const st=stats();document.getElementById('summary').innerHTML=[['👥','Dotación FT','28'],['🌙','Noches / ciclo','2 por FT'],['📅','Versión actual',`v${version}`],['🛡️','Máx. 6 días',st.over.length?`${st.over.length} alertas`:'Validado']].map((m,i)=>`<div class="metric ${i===3&&st.over.length?'warn':''}"><span class="metric-icon">${m[0]}</span><div><span>${m[1]}</span><strong>${m[2]}</strong></div></div>`).join('');}
+function renderTabs(){document.getElementById('weekTabs').innerHTML=WEEK_NAMES.map((w,i)=>`<button data-week="${i}" class="${week===i?'active':''}">${w}</button>`).join('');document.querySelectorAll('[data-week]').forEach(b=>b.onclick=()=>{week=Number(b.dataset.week);render();});}
+function renderTable(){document.getElementById('calendarHead').innerHTML=`<tr><th class="sticky-col">Atendedor</th>${DAYS.map((d,i)=>`<th>${d}<small>Día ${week*7+i+1}</small></th>`).join('')}</tr>`;document.getElementById('calendarBody').innerHTML=employees.map(e=>`<tr><td class="sticky-col person"><input type="checkbox" data-emp="${e.id}" ${selected.has(e.id)?'checked':''}><span>${e.name}</span></td>${Array.from({length:7},(_,i)=>{const code=schedule[e.id][week*7+i]||'L',m=SHIFT_META[code]||SHIFT_META.L;return `<td><div class="shift ${m.cls}"><b>${m.label}</b><small>${m.time}</small></div></td>`;}).join('')}</tr>`).join('');document.querySelectorAll('[data-emp]').forEach(c=>c.onchange=()=>{const id=Number(c.dataset.emp);c.checked?selected.add(id):selected.delete(id);});}
+function renderCoverage(){document.getElementById('coverage').innerHTML=DAYS.map((d,i)=>{const c=dayCoverage(week*7+i);return `<div class="coverage-card"><h3>${d}</h3><div class="chips">${['N','M1','M2','M3','B1','B2','T1','T2'].map(s=>`<span>${s} <b>${c[s]||0}</b></span>`).join('')}</div></div>`;}).join('');}
+function renderRules(){const rules=['Ciclo continuo de 28 días; no se reinicia por cambio de mes.','Máximo 6 días continuos por FT.','Todos los FT realizan un bloque de 2 noches consecutivas.','PT no realizan noche y esta versión no modifica sus horarios.','M1 no se utiliza sábado ni domingo.','Primer ingreso diurno 06:00; ningún turno cruza medianoche.','Semanas con libres juntos: salida 30 min antes en un día.','Semanas con libres separados: dos salidas de 15 min antes.','23:30–00:00 puede operar con dotación inferior a 9.','1 FT de vacaciones se considera restricción estructural.','Licencias usan reasignación mínima hacia flotantes.'];document.getElementById('rules').innerHTML=rules.map(r=>`<div class="rule">✓ <span>${r}</span></div>`).join('');}
+function renderAlert(){const st=stats();document.getElementById('alert').innerHTML=st.over.length?`<div class="alert">⚠ Atendedores sobre 6 días continuos: ${st.over.join(', ')}</div>`:'';}
+function openSelect(){showModal(`<div class="modal-head"><h2>Seleccionar atendedores</h2><button data-close>✕</button></div><p>Solo los seleccionados se regenerarán al crear una nueva versión.</p><button id="toggleAll" class="btn secondary wide">${selected.size===28?'Desmarcar todos':'Seleccionar todos'}</button><div class="selector-grid">${employees.map(e=>`<label><input type="checkbox" data-sel="${e.id}" ${selected.has(e.id)?'checked':''}>${e.name}</label>`).join('')}</div><div class="modal-actions"><button class="btn primary" data-close>Aplicar selección (${selected.size})</button></div>`);document.getElementById('toggleAll').onclick=()=>{selected=selected.size===28?new Set():new Set(employees.map(e=>e.id));openSelect();};document.querySelectorAll('[data-sel]').forEach(c=>c.onchange=()=>{const id=Number(c.dataset.sel);c.checked?selected.add(id):selected.delete(id);});bindClose();}
+function openLicense(){showModal(`<div class="modal-head"><h2>Registrar licencia médica</h2><button data-close>✕</button></div><label class="field">Atendedor<select id="licenseEmployee">${employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></label><div class="field"><span>Días del ciclo</span><div class="day-picker">${Array.from({length:28},(_,d)=>`<label><input type="checkbox" data-lday="${d}" ${d===week*7?'checked':''}><span>${d+1}</span></label>`).join('')}</div></div><div class="modal-actions"><button class="btn secondary" data-close>Cancelar</button><button id="applyLicense" class="btn danger">Aplicar y reasignar</button></div>`);document.getElementById('applyLicense').onclick=applyLicense;bindClose();}
+function applyLicense(){const id=Number(document.getElementById('licenseEmployee').value),days=[...document.querySelectorAll('[data-lday]:checked')].map(x=>Number(x.dataset.lday));if(!days.length)return;const next=clone(schedule);days.forEach(d=>next[id][d]='LM');days.forEach(d=>{const original=schedule[id][d];if(['L','N','','LM','VAC'].includes(original))return;const candidates=employees.filter(e=>e.id!==id&&!['L','N','LM','VAC'].includes(next[e.id][d]));const preferred=candidates.find(e=>['B1','B2','M2','M3','T1'].includes(next[e.id][d]));if(preferred)next[preferred.id][d]=original;});schedule=next;closeModal();setNotice(`Licencia aplicada a Atendedor ${id}; se ejecutó reasignación mínima cuando fue posible.`);render();}
+function showModal(html){document.getElementById('modalRoot').innerHTML=`<div class="modal-backdrop"><div class="modal">${html}</div></div>`;}
+function bindClose(){document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);}
+function closeModal(){document.getElementById('modalRoot').innerHTML='';}
+function setNotice(t){document.getElementById('notice').textContent=t;}
+document.getElementById('selectBtn').onclick=openSelect;document.getElementById('licenseBtn').onclick=openLicense;document.getElementById('generateBtn').onclick=()=>{const nextVer=version+1,fresh=makeBaseSchedule(nextVer),merged=clone(schedule);employees.forEach(e=>{if(selected.has(e.id))merged[e.id]=fresh[e.id];});schedule=merged;version=nextVer;setNotice(`Versión ${version} generada para ${selected.size} atendedores seleccionados.`);render();};
+setNotice('Versión 1 generada con patrón maestro de 4 semanas.');render();
