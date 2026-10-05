@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="theme-color" content="#0f172a" />
-<title>Turnos EDS · v1.0</title>
+<title>Turnos EDS · v1.2</title>
 <style>
 :root{--bg:#f4f7fb;--panel:#fff;--text:#0f172a;--muted:#64748b;--border:#dbe3ef;--accent:#0f62fe;--danger:#b42318;--warn:#b54708;--ok:#067647;--n:#dbeafe;--m:#dcfce7;--b:#fef3c7;--t:#fce7f3;--off:#f1f5f9;--vac:#e0e7ff;--lm:#fee2e2;--comp:#f3e8ff;--pt:#ecfeff}
 *{box-sizing:border-box}body{margin:0;font:14px/1.35 Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}button,input,select{font:inherit}.app{max-width:1600px;margin:auto;padding:20px}.top{display:flex;gap:20px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent)}h1{margin:4px 0 2px;font-size:28px}h2{margin:0 0 8px;font-size:18px}.sub{color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px 13px;font-weight:700;cursor:pointer}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.danger{color:#fff;background:var(--danger);border-color:var(--danger)}.btn:disabled{opacity:.5;cursor:not-allowed}.grid{display:grid;gap:12px}.summary{grid-template-columns:repeat(6,minmax(140px,1fr));margin:18px 0}.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px}.kpi b{font-size:24px;display:block}.kpi span{color:var(--muted);font-size:12px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.week-tabs{display:flex;gap:6px}.tab{padding:8px 12px;border:1px solid var(--border);background:#fff;border-radius:9px;cursor:pointer}.tab.active{background:#0f172a;color:#fff}.grow{flex:1}.datebox{display:flex;gap:7px;align-items:center}.datebox input{border:1px solid var(--border);padding:8px;border-radius:8px}.panel{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.scroll{overflow:auto;max-width:100%}table{border-collapse:separate;border-spacing:0;width:100%;min-width:1050px}th,td{padding:8px;border-bottom:1px solid #edf1f6;border-right:1px solid #edf1f6;text-align:center;white-space:nowrap}th{background:#f8fafc;position:sticky;top:0;z-index:2;font-size:12px;color:#475569}.name{position:sticky;left:0;z-index:1;background:#fff;text-align:left;min-width:155px;font-weight:700}.name.pt{background:#ecfeff}.cell{border-radius:7px;padding:5px 6px;font-weight:800;font-size:12px;display:inline-block;min-width:66px}.N{background:var(--n)}.M1,.M2,.M3{background:var(--m)}.B1,.B2{background:var(--b)}.T1,.T2{background:var(--t)}.L{background:var(--off);color:#64748b}.VAC{background:var(--vac);color:#3730a3}.LM{background:var(--lm);color:#991b1b}.COMP{background:var(--comp);color:#6b21a8}.PTFIX{background:var(--pt);color:#155e75}.small{font-size:10px;color:#64748b;font-weight:600;display:block;margin-top:2px}.coverage{grid-template-columns:repeat(7,minmax(145px,1fr));padding:14px}.daycov{border:1px solid var(--border);border-radius:12px;padding:10px}.daycov.ok{border-color:#a6e3c7;background:#f6fffa}.daycov.bad{border-color:#f8b4b4;background:#fff8f7}.bar{height:7px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:7px 0}.bar i{height:100%;display:block;background:var(--accent)}.alerts{display:grid;gap:8px;padding:14px}.alert{padding:10px 12px;border-radius:10px;border:1px solid}.alert.err{background:#fff1f0;border-color:#fecdca;color:#912018}.alert.warn{background:#fffaeb;border-color:#fedf89;color:#93370d}.alert.ok{background:#ecfdf3;border-color:#abefc6;color:#05603a}.legend{display:flex;gap:8px;flex-wrap:wrap}.legend span{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:700;border:1px solid var(--border)}.modal-back{position:fixed;inset:0;background:#0f172a88;display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}.modal{background:#fff;border-radius:16px;width:min(760px,100%);max-height:88vh;overflow:auto;padding:18px}.modal h3{margin:0 0 12px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:5px}.field input,.field select{width:100%;border:1px solid var(--border);border-radius:9px;padding:10px}.checks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.check{display:flex;gap:6px;align-items:center;border:1px solid var(--border);padding:7px;border-radius:8px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.history{font-size:12px;color:var(--muted)}.badge{display:inline-flex;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:800;background:#eef2ff;color:#3730a3}.hidden{display:none!important}@media(max-width:900px){.summary{grid-template-columns:repeat(2,1fr)}.coverage{grid-template-columns:repeat(2,1fr)}.formgrid,.checks{grid-template-columns:1fr 1fr}.app{padding:12px}}@media(max-width:520px){.summary,.coverage,.formgrid,.checks{grid-template-columns:1fr}.actions .btn{flex:1}.top{display:block}.actions{margin-top:12px}}
@@ -14,13 +14,13 @@
 </head>
 <body>
 <main class="app" id="app">
-<header class="top"><div><div class="eyebrow">EDS · MOTOR DE TURNOS 24/7 · V1.0</div><h1>Planificador maestro</h1><div class="sub">Vista de 4 semanas · superciclo de 12 semanas · L → N → N → N → Tarde · 28 FT + 8 PT · cobertura crítica mínima 9</div></div><div class="actions"><button class="btn primary" id="addWorkerBtn">+ Atendedor</button><button class="btn" id="workersBtn">Atendedores</button><button class="btn" id="vacBtn">Asignar vacaciones</button><button class="btn danger" id="lmBtn">Licencia médica</button><button class="btn" id="compBtn">Compensatorio</button><button class="btn" id="cloudBtn">Supabase</button><button class="btn primary" id="genBtn">Generar versión</button></div></header>
+<header class="top"><div><div class="eyebrow">EDS · MOTOR DE TURNOS 24/7 · V1.2</div><h1>Planificador maestro</h1><div class="sub">Vista de 4 semanas · superciclo de 12 semanas · L → N → N → N → Tarde · 28 FT + 8 PT · cobertura crítica mínima 9</div></div><div class="actions"><button class="btn primary" id="addWorkerBtn">+ Atendedor</button><button class="btn" id="workersBtn">Atendedores</button><button class="btn" id="vacBtn">Asignar vacaciones</button><button class="btn danger" id="lmBtn">Licencia médica</button><button class="btn" id="compBtn">Compensatorio</button><button class="btn" id="cloudBtn">Supabase</button><button class="btn primary" id="genBtn">Generar versión</button></div></header>
 <section class="grid summary" id="summary"></section>
-<section class="toolbar"><div class="week-tabs" id="tabs"></div><div class="grow"></div><div class="datebox"><label>Inicio ciclo</label><input id="cycleStart" type="date" value="2026-10-05"></div><button class="btn" id="exportBtn">Exportar JSON</button><label class="btn" for="importFile">Importar JSON</label><input id="importFile" class="hidden" type="file" accept="application/json"></section>
+<div id="editModeHint" class="sub" style="margin:12px 0 4px"></div><section class="toolbar"><div class="week-tabs" id="tabs"></div><div class="grow"></div><div class="datebox"><label>Inicio ciclo</label><input id="cycleStart" type="date" value="2026-10-05"></div><button class="btn" id="exportBtn">Exportar JSON</button><label class="btn" for="importFile">Importar JSON</label><input id="importFile" class="hidden" type="file" accept="application/json"></section>
 <section class="panel"><div class="panel-head"><div><h2>Malla de turnos</h2><div class="sub" id="weekLabel"></div></div><div class="legend"><span class="N">N</span><span class="M1">Mañana</span><span class="B1">Bisagra</span><span class="T2">Tarde</span><span class="L">Libre</span><span class="VAC">VAC</span><span class="LM">LM</span><span class="COMP">COMP</span><span class="PTFIX">PT fijo</span></div></div><div class="scroll"><table><thead id="head"></thead><tbody id="body"></tbody></table></div></section>
 <section class="panel"><div class="panel-head"><div><h2>Cobertura diaria</h2><div class="sub">Incluye FT y PT. Objetivo duro: mínimo 9 en horas críticas; las reducciones -30/-15 min se absorben preferentemente en cierre.</div></div></div><div class="grid coverage" id="coverage"></div></section>
 <section class="panel"><div class="panel-head"><div><h2>Validaciones</h2><div class="sub">Máximo 6 días consecutivos, máximo 2 libres por semana, 42 h, exactamente 2 N diarios, patrón L→N→N→N→Tarde y cobertura crítica ≥9 desde las 07:00; entre 06:00–07:00 se acepta 8 (6 M1 + 2 N).</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge" id="cloudStatus">Supabase: local</span><span class="badge" id="versionBadge"></span></div></div><div class="alerts" id="alerts"></div></section>
-<section class="panel"><div class="panel-head"><div><h2>Historial de versiones</h2><div class="sub">Se guarda automáticamente en Supabase cuando hay sesión iniciada; localStorage queda como respaldo.</div></div></div><div class="alerts history" id="history"></div></section>
+<section class="panel"><div class="panel-head"><div><h2>Historial de versiones</h2><div class="sub">La programación es compartida: invitados leen desde Supabase y usuarios autenticados pueden guardar cambios para todos.</div></div></div><div class="alerts history" id="history"></div></section>
 </main><div id="modal"></div>
 
 <script>
@@ -35,60 +35,102 @@ const PT=[
 ];
 const ANCHOR='2026-10-05';
 let state={version:1,week:0,start:'2026-10-05',selected:Array.from({length:28},(_,i)=>i+1),overrides:{},history:[],vacation:null,seed:0,workers:Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i})),ptNames:Object.fromEntries(PT.map(p=>[p.id,p.id]))};
-try{const saved=JSON.parse(localStorage.getItem('eds-turnos-v10')||localStorage.getItem('eds-turnos-v09')||localStorage.getItem('eds-turnos-v08')||'null');if(saved)state={...state,...saved}}catch(e){}
+try{const saved=JSON.parse(localStorage.getItem('eds-turnos-v11')||localStorage.getItem('eds-turnos-v10')||localStorage.getItem('eds-turnos-v09')||localStorage.getItem('eds-turnos-v08')||'null');if(saved)state={...state,...saved}}catch(e){}
 if(!Array.isArray(state.workers)||!state.workers.length)state.workers=Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i}));
 if(!state.ptNames)state.ptNames=Object.fromEntries(PT.map(p=>[p.id,p.id]));
 for(const w of state.workers){if(!w.name)w.name=`Atendedor ${w.id}`;if(w.pattern==null)w.pattern=(w.id-1)%28;}
 state.selected=state.selected.filter(id=>state.workers.some(w=>w.id===id));
-const cloud={client:null,user:null,ready:false,syncing:false,lastError:'',lastSyncedAt:'',workspace:'eds-40098'};
+const cloud={client:null,user:null,ready:false,syncing:false,lastError:'',lastSyncedAt:'',workspace:'principal',saveQueued:false,snapshotQueued:false,remoteLoaded:false,pollTimer:null};
 const cfg=window.SUPABASE_CONFIG||{};
 if(window.supabase&&cfg.url&&cfg.publishableKey){
   cloud.client=window.supabase.createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   cloud.ready=true;
 }
-let cloudTimer=null;
-function localSave(){state.updatedAt=new Date().toISOString();localStorage.setItem('eds-turnos-v10',JSON.stringify(state));}
+let cloudTimer=null,debounceSnapshot=false;
+function cloneState(){return JSON.parse(JSON.stringify(state));}
+function localSave(){state.updatedAt=new Date().toISOString();localStorage.setItem('eds-turnos-v11',JSON.stringify(state));}
 async function cloudSave(snapshot=false){
-  if(!cloud.client||!cloud.user||cloud.syncing)return;
+  if(!cloud.client||!cloud.user)return false;
+  cloud.saveQueued=true;cloud.snapshotQueued=cloud.snapshotQueued||snapshot;
+  if(cloud.syncing)return true;
   cloud.syncing=true;updateCloudStatus('guardando');
+  let ok=true;
   try{
-    const row={user_id:cloud.user.id,workspace:cloud.workspace,state,updated_at:new Date().toISOString()};
-    const {error}=await cloud.client.from('turnos_eds_state').upsert(row,{onConflict:'user_id,workspace'});
-    if(error)throw error;
-    if(snapshot){
-      const {error:ve}=await cloud.client.from('turnos_eds_versions').insert({user_id:cloud.user.id,workspace:cloud.workspace,version:state.version,state,note:state.history.at(-1)?.note||'Versión guardada'});
-      if(ve)throw ve;
+    while(cloud.saveQueued){
+      const snap=cloud.snapshotQueued;
+      cloud.saveQueued=false;cloud.snapshotQueued=false;
+      const payload=cloneState();
+      const stamp=payload.updatedAt||new Date().toISOString();
+      const row={workspace:cloud.workspace,state:payload,updated_at:stamp,updated_by:cloud.user.id};
+      const {error}=await cloud.client.from('turnos_eds_shared_state').upsert(row,{onConflict:'workspace'});
+      if(error)throw error;
+      if(snap){
+        const {error:ve}=await cloud.client.from('turnos_eds_shared_versions').insert({workspace:cloud.workspace,version:payload.version,state:payload,note:payload.history?.at(-1)?.note||'Versión guardada',created_by:cloud.user.id});
+        if(ve)throw ve;
+      }
+      cloud.lastSyncedAt=stamp;cloud.remoteLoaded=true;
     }
-    cloud.lastError='';cloud.lastSyncedAt=new Date().toISOString();updateCloudStatus('sincronizado');
-  }catch(e){cloud.lastError=e.message||String(e);updateCloudStatus('error');}
-  finally{cloud.syncing=false;}
+    cloud.lastError='';updateCloudStatus('sincronizado');
+  }catch(e){
+    ok=false;cloud.lastError=e.message||String(e);updateCloudStatus('error');
+    cloud.saveQueued=true;cloud.snapshotQueued=cloud.snapshotQueued||snapshot;
+  }finally{cloud.syncing=false;}
+  if(cloud.saveQueued&&ok)setTimeout(()=>cloudSave(false),50);
+  return ok;
 }
-function save(snapshot=false){
+function save(snapshot=false,immediate=false){
   localSave();
+  debounceSnapshot=debounceSnapshot||snapshot;
   clearTimeout(cloudTimer);
-  cloudTimer=setTimeout(()=>cloudSave(snapshot),250);
+  if(!cloud.user){updateCloudStatus();return Promise.resolve(false);}
+  if(immediate){const snap=debounceSnapshot;debounceSnapshot=false;return cloudSave(snap);}
+  cloudTimer=setTimeout(()=>{const snap=debounceSnapshot;debounceSnapshot=false;cloudSave(snap)},300);
+  return Promise.resolve(true);
+}
+function setEditingState(){
+  const editable=!!cloud.user;
+  ['addWorkerBtn','workersBtn','vacBtn','lmBtn','compBtn','genBtn','cycleStart','importFile'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!editable});
+  const msg=document.getElementById('editModeHint');
+  if(msg)msg.textContent=editable?'Edición habilitada · los cambios se guardan en el espacio compartido.':'Modo invitado · visualización del espacio compartido. Inicia sesión para editar.';
 }
 function updateCloudStatus(mode){
   const el=document.getElementById('cloudStatus');if(!el)return;
   if(!cloud.ready){el.textContent='Supabase: sin configurar';return;}
-  if(!cloud.user){el.textContent='Supabase: desconectado';return;}
-  const label=mode==='guardando'?'guardando…':mode==='error'?'error':mode==='sincronizado'?'sincronizado':'conectado';
-  el.textContent=`Supabase: ${label}`;
-  el.title=cloud.lastError||(cloud.lastSyncedAt?`Último guardado: ${new Date(cloud.lastSyncedAt).toLocaleString('es-CL')}`:(cloud.user.email||''));
+  if(mode==='error'){el.textContent='Supabase: error';el.title=cloud.lastError||'';return;}
+  if(cloud.user){
+    const label=mode==='guardando'?'guardando…':mode==='sincronizado'?'sincronizado':'conectado';
+    el.textContent=`Supabase: ${label}`;
+  }else{
+    el.textContent=cloud.remoteLoaded?'Supabase: público':'Supabase: cargando…';
+  }
+  el.title=cloud.lastError||(cloud.lastSyncedAt?`Última actualización: ${new Date(cloud.lastSyncedAt).toLocaleString('es-CL')}`:(cloud.user?.email||'Lectura pública'));
+  setEditingState();
 }
-async function cloudLoad(){
-  if(!cloud.client||!cloud.user)return;
-  const {data,error}=await cloud.client.from('turnos_eds_state').select('state,updated_at').eq('user_id',cloud.user.id).eq('workspace',cloud.workspace).maybeSingle();
+async function cloudLoadShared(){
+  if(!cloud.client)return;
+  if(cloud.syncing)return;
+  const {data,error}=await cloud.client.from('turnos_eds_shared_state').select('state,updated_at,updated_by').eq('workspace',cloud.workspace).maybeSingle();
   if(error){cloud.lastError=error.message;updateCloudStatus('error');return;}
-  if(data?.state){state={...state,...data.state};localStorage.setItem('eds-turnos-v10',JSON.stringify(state));}
-  cloud.lastSyncedAt=data?.updated_at||new Date().toISOString();updateCloudStatus('sincronizado');render();
+  if(data?.state){
+    state={...state,...data.state};
+    localStorage.setItem('eds-turnos-v11',JSON.stringify(state));
+    cloud.lastSyncedAt=data.updated_at||data.state.updatedAt||new Date().toISOString();
+    cloud.remoteLoaded=true;cloud.lastError='';updateCloudStatus(cloud.user?'sincronizado':undefined);render();
+  }else if(cloud.user){
+    localSave();await cloudSave(false);render();
+  }else{
+    cloud.remoteLoaded=false;updateCloudStatus();render();
+  }
 }
 async function initCloud(){
-  if(!cloud.client){updateCloudStatus();return;}
+  if(!cloud.client){updateCloudStatus();render();return;}
   const {data:{session}}=await cloud.client.auth.getSession();
   cloud.user=session?.user||null;
-  if(cloud.user)await cloudLoad();else updateCloudStatus();
-  cloud.client.auth.onAuthStateChange(async(_event,session)=>{cloud.user=session?.user||null;if(cloud.user)await cloudLoad();else{updateCloudStatus();render();}});
+  await cloudLoadShared();
+  cloud.client.auth.onAuthStateChange(async(_event,session)=>{cloud.user=session?.user||null;await cloudLoadShared();});
+  if(!cloud.pollTimer)cloud.pollTimer=setInterval(()=>{if(!cloud.syncing)cloudLoadShared()},30000);
+  window.addEventListener('focus',()=>{if(!cloud.syncing)cloudLoadShared()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!cloud.syncing)cloudLoadShared()});
 }
 
 const workerIds=()=>state.workers.map(w=>w.id);
@@ -248,7 +290,7 @@ function validations(schedule){
 }
 function cell(x){let code=x.status,cls=code;if(code==='WORK'){code=x.shift||'—';cls=x.shift||'L'}else if(code==='PTFIX'){code=x.shift;cls='PTFIX'}let sub='';if(x.shift&&['WORK','N','PTFIX'].includes(x.status))sub=`${SHIFT[x.shift][0]}–${time(endMinute(x))}${x.reduction?` · -${x.reduction}m`:''}${x.anchor==='POST_N'?' · post NNN':''}`;if(code==='VAC')sub='vacaciones';if(code==='LM')sub='licencia médica';if(code==='COMP')sub='compensatorio';return `<td><span class="cell ${cls}">${code}<span class="small">${sub}</span></span></td>`}
 function render(){
- save();const schedule=buildSchedule(),days=schedule.days,k=state.week,vals=validations(schedule),errs=vals.filter(x=>x.t==='err').length,warns=vals.filter(x=>x.t==='warn').length;
+ const schedule=buildSchedule(),days=schedule.days,k=state.week,vals=validations(schedule),errs=vals.filter(x=>x.t==='err').length,warns=vals.filter(x=>x.t==='warn').length;
  document.getElementById('versionBadge').textContent='Versión '+state.version;document.getElementById('cycleStart').value=state.start;
  document.getElementById('summary').innerHTML=[[ftCount()+8,'Dotación total'],[ftCount(),'Full-time'],[8,'Part-time'],['NNN','Ancla nocturna'],[errs,'Errores duros'],[warns,'Alertas']].map(([a,b])=>`<div class="card kpi"><b>${a}</b><span>${b}</span></div>`).join('');
  document.getElementById('tabs').innerHTML=[0,1,2,3].map(x=>`<button class="tab ${x===k?'active':''}" data-w="${x}">Semana ${x+1}</button>`).join('');
@@ -272,6 +314,7 @@ function render(){
  document.getElementById('coverage').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j,c=coverageMetric(days[d],d),ok=c.worst>=9;return `<div class="daycov ${ok?'ok':'bad'}"><b>${DOW[j]} ${fmt(d)}</b><div class="small">mínimo crítico ${c.worst} a las ${c.worstAt}</div><div class="bar"><i style="width:${Math.min(100,c.worst/12*100)}%"></i></div><div class="small">06h ${c.at06} · 07h ${c.at07} · 12h ${c.at12}<br>18h ${c.at18} · 22h ${c.at22} · 23:30 ${c.at2330}</div></div>`}).join('');
  document.getElementById('alerts').innerHTML=vals.slice(0,60).map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('')+(vals.length>60?`<div class="alert warn">+${vals.length-60} alertas adicionales.</div>`:'');
  document.getElementById('history').innerHTML=state.history.length?state.history.slice().reverse().map(h=>`<div>v${h.v} · ${h.when} · ${h.note}</div>`).join(''):'Sin versiones adicionales todavía.';
+ setEditingState();
 }
 function modal(html){document.getElementById('modal').innerHTML=`<div class="modal-back"><div class="modal">${html}</div></div>`}
 function closeModal(){document.getElementById('modal').innerHTML=''}
@@ -279,13 +322,13 @@ function addWorkerModal(){
  const id=nextWorkerId();
  modal(`<h3>Agregar atendedor FT</h3><div class="alert ok" style="margin-bottom:12px">El nuevo atendedor quedará activo inmediatamente. El motor le asignará automáticamente un patrón de trabajo/libres compatible y un turno en cada día trabajado.</div><div class="field"><label>Nombre</label><input id="newWorkerName" value="Atendedor ${id}" maxlength="80"></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="confirmAdd">Agregar y generar horario</button></div>`);
  document.getElementById('cancel').onclick=closeModal;
- document.getElementById('confirmAdd').onclick=()=>{
+ document.getElementById('confirmAdd').onclick=async()=>{
    const name=document.getElementById('newWorkerName').value.trim()||`Atendedor ${id}`,pattern=choosePatternForNewWorker();
    state.workers.push({id,name,pattern});
    if(!state.selected.includes(id))state.selected.push(id);
    state.version++;state.seed++;
    state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`${name} (A${id}) agregado; patrón base ${pattern+1} y turnos asignados automáticamente.`});
-   save(true);closeModal();render();
+   await save(true,true);closeModal();render();
  };
 }
 function workerModal(){
@@ -293,34 +336,34 @@ function workerModal(){
  const ptRows=PT.map(p=>`<div class="check" style="display:grid;grid-template-columns:1fr auto;gap:8px"><input class="ptNameInput" data-id="${p.id}" value="${String(state.ptNames[p.id]||p.id).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" aria-label="Nombre ${p.id}"><span class="small">${p.id}</span></div>`).join('');
  modal(`<h3>Administrar atendedores</h3><div class="alert ok" style="margin-bottom:12px">Los nombres se pueden editar directamente. Al agregar un FT, queda seleccionado y entra automáticamente al generador con un patrón de trabajo/libres compatible; el motor le asignará turno en cada día trabajado.</div><div class="modal-actions" style="justify-content:flex-start;margin:0 0 12px"><button class="btn primary" id="addWorker">+ Agregar atendedor FT</button></div><h4>Full-time (${ftCount()})</h4><div class="checks" style="grid-template-columns:repeat(2,minmax(0,1fr))">${rows}</div><h4 style="margin-top:16px">Part-time</h4><div class="checks" style="grid-template-columns:repeat(2,minmax(0,1fr))">${ptRows}</div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="saveWorkers">Guardar cambios</button></div>`);
  document.getElementById('cancel').onclick=closeModal;
- document.getElementById('addWorker').onclick=()=>{
+ document.getElementById('addWorker').onclick=async()=>{
    const id=nextWorkerId(),pattern=choosePatternForNewWorker();
    state.workers.push({id,name:`Atendedor ${id}`,pattern});state.selected.push(id);
    state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Atendedor ${id} agregado; patrón base ${pattern+1} y asignación automática de turnos.`});
-   save(true);closeModal();workerModal();
+   await save(true,true);closeModal();workerModal();
  };
- document.getElementById('saveWorkers').onclick=()=>{
+ document.getElementById('saveWorkers').onclick=async()=>{
    state.selected=[...document.querySelectorAll('.selWorker:checked')].map(x=>+x.value);
    document.querySelectorAll('.workerNameInput').forEach(el=>{const w=workerById(+el.dataset.id);if(w)w.name=el.value.trim()||`Atendedor ${w.id}`});
    document.querySelectorAll('.ptNameInput').forEach(el=>{state.ptNames[el.dataset.id]=el.value.trim()||el.dataset.id});
    state.version++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:'Nombres y selección de atendedores actualizados.'});
-   save(true);closeModal();render();
+   await save(true,true);closeModal();render();
  };
 }
 function vacationModal(){const current=state.vacation,minDate=state.start,maxDate=dateFor(27).toISOString().slice(0,10),from=current?dateFor(current.from).toISOString().slice(0,10):minDate,to=current?dateFor(current.to).toISOString().slice(0,10):minDate;modal(`<h3>Asignar vacaciones</h3><div class="alert warn" style="margin-bottom:12px">Solo 1 FT puede tener VAC por ciclo. Nunca se asignan aleatoriamente.</div><div class="formgrid"><div class="field"><label>Atendedor</label><select id="vw">${state.workers.map(w=>`<option value="${w.id}" ${current&&current.worker===w.id?'selected':''}>${workerName(w.id)}</option>`).join('')}</select></div><div class="field"><label>Acción</label><select id="vmode"><option value="apply">Asignar / reemplazar</option><option value="clear">Quitar VAC</option></select></div><div class="field"><label>Desde</label><input id="vfrom" type="date" min="${minDate}" max="${maxDate}" value="${from}"></div><div class="field"><label>Hasta</label><input id="vto" type="date" min="${minDate}" max="${maxDate}" value="${to}"></div></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="applyVac">Guardar y generar horario</button></div>`);
- document.getElementById('cancel').onclick=closeModal;document.getElementById('applyVac').onclick=()=>{if(document.getElementById('vmode').value==='clear'){state.vacation=null;state.version++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:'Vacaciones quitadas del ciclo.'});closeModal();render();return}const worker=+document.getElementById('vw').value,a=document.getElementById('vfrom').value,b=document.getElementById('vto').value;if(!a||!b)return alert('Selecciona ambas fechas.');const from=Math.round((parseDate(a)-parseDate(state.start))/86400000),to=Math.round((parseDate(b)-parseDate(state.start))/86400000);if(from<0||to>27||from>to)return alert('VAC debe quedar dentro del ciclo.');state.vacation={worker,from,to};state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`VAC manual A${worker} · ${a}–${b}; horario regenerado.`});closeModal();render()}}
+ document.getElementById('cancel').onclick=closeModal;document.getElementById('applyVac').onclick=()=>{if(document.getElementById('vmode').value==='clear'){state.vacation=null;state.version++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:'Vacaciones quitadas del ciclo.'});save(true);closeModal();render();return}const worker=+document.getElementById('vw').value,a=document.getElementById('vfrom').value,b=document.getElementById('vto').value;if(!a||!b)return alert('Selecciona ambas fechas.');const from=Math.round((parseDate(a)-parseDate(state.start))/86400000),to=Math.round((parseDate(b)-parseDate(state.start))/86400000);if(from<0||to>27||from>to)return alert('VAC debe quedar dentro del ciclo.');state.vacation={worker,from,to};state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`VAC manual A${worker} · ${a}–${b}; horario regenerado.`});save(true);closeModal();render()}}
 function absenceModal(type){const title=type==='LM'?'Licencia médica':'Compensatorio';modal(`<h3>${title}</h3><div class="formgrid"><div class="field"><label>Atendedor</label><select id="aw">${state.workers.map(w=>`<option value="A${w.id}">${workerName(w.id)}</option>`).join('')}</select></div><div class="field"><label>Acción</label><select id="mode"><option value="apply">Aplicar</option><option value="clear">Quitar marca</option></select></div><div class="field"><label>Día ciclo desde</label><input id="from" type="number" min="1" max="28" value="1"></div><div class="field"><label>Día ciclo hasta</label><input id="to" type="number" min="1" max="28" value="1"></div></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="apply">Aplicar y reasignar</button></div>`);
- document.getElementById('cancel').onclick=closeModal;document.getElementById('apply').onclick=()=>{const id=document.getElementById('aw').value,mode=document.getElementById('mode').value;let a=Math.max(1,Math.min(28,+document.getElementById('from').value))-1,b=Math.max(1,Math.min(28,+document.getElementById('to').value))-1;if(a>b)[a,b]=[b,a];for(let d=a;d<=b;d++){if(mode==='clear')delete state.overrides[key(id,d)];else state.overrides[key(id,d)]={code:type}}state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`${title} ${id}, días ${a+1}–${b+1}; cobertura regenerada.`});closeModal();render()}}
+ document.getElementById('cancel').onclick=closeModal;document.getElementById('apply').onclick=()=>{const id=document.getElementById('aw').value,mode=document.getElementById('mode').value;let a=Math.max(1,Math.min(28,+document.getElementById('from').value))-1,b=Math.max(1,Math.min(28,+document.getElementById('to').value))-1;if(a>b)[a,b]=[b,a];for(let d=a;d<=b;d++){if(mode==='clear')delete state.overrides[key(id,d)];else state.overrides[key(id,d)]={code:type}}state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`${title} ${id}, días ${a+1}–${b+1}; cobertura regenerada.`});save(true);closeModal();render()}}
 function cloudModal(){
   if(!cloud.ready){
     modal(`<h3>Conectar Supabase</h3><div class="alert warn">Falta configurar <b>config.js</b>. Copia config.example.js a config.js e ingresa la URL del proyecto y la publishable/anon key.</div><div class="modal-actions"><button class="btn primary" id="cancel">Cerrar</button></div>`);document.getElementById('cancel').onclick=closeModal;return;
   }
   if(cloud.user){
     modal(`<h3>Supabase conectado</h3><div class="alert ok">Sesión: ${cloud.user.email||cloud.user.id}</div>${cloud.lastError?`<div class="alert err">${cloud.lastError}</div>`:''}<div class="modal-actions"><button class="btn" id="syncNow">Sincronizar ahora</button><button class="btn danger" id="logout">Cerrar sesión</button><button class="btn" id="cancel">Cerrar</button></div>`);
-    document.getElementById('cancel').onclick=closeModal;document.getElementById('syncNow').onclick=async()=>{await cloudSave(true);closeModal();render()};document.getElementById('logout').onclick=async()=>{await cloud.client.auth.signOut();cloud.user=null;closeModal();updateCloudStatus();render()};return;
+    document.getElementById('cancel').onclick=closeModal;document.getElementById('syncNow').onclick=async()=>{await save(true,true);closeModal();render()};document.getElementById('logout').onclick=async()=>{await cloud.client.auth.signOut();cloud.user=null;closeModal();updateCloudStatus();render()};return;
   }
-  modal(`<h3>Iniciar sesión en Supabase</h3><div class="formgrid"><div class="field"><label>Email</label><input id="sEmail" type="email" autocomplete="email"></div><div class="field"><label>Contraseña</label><input id="sPass" type="password" autocomplete="current-password"></div></div><div class="small" style="margin-top:10px">La cuenta debe existir en Supabase Auth. Todo cambio de la aplicación se guarda automáticamente en Supabase con RLS; localStorage queda como respaldo sin conexión.</div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="login">Ingresar</button></div>`);
-  document.getElementById('cancel').onclick=closeModal;document.getElementById('login').onclick=async()=>{const email=document.getElementById('sEmail').value.trim(),password=document.getElementById('sPass').value;if(!email||!password)return alert('Ingresa email y contraseña.');const {data,error}=await cloud.client.auth.signInWithPassword({email,password});if(error)return alert(error.message);cloud.user=data.user;closeModal();await cloudLoad();};
+  modal(`<h3>Iniciar sesión en Supabase</h3><div class="formgrid"><div class="field"><label>Email</label><input id="sEmail" type="email" autocomplete="email"></div><div class="field"><label>Contraseña</label><input id="sPass" type="password" autocomplete="current-password"></div></div><div class="small" style="margin-top:10px">La cuenta debe existir en Supabase Auth. Los invitados ven siempre el espacio compartido. Al iniciar sesión se habilita la edición y los cambios se guardan para todos; localStorage queda como respaldo local.</div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="login">Ingresar</button></div>`);
+  document.getElementById('cancel').onclick=closeModal;document.getElementById('login').onclick=async()=>{const email=document.getElementById('sEmail').value.trim(),password=document.getElementById('sPass').value;if(!email||!password)return alert('Ingresa email y contraseña.');const {data,error}=await cloud.client.auth.signInWithPassword({email,password});if(error)return alert(error.message);cloud.user=data.user;closeModal();await cloudLoadShared();};
 }
 function generate(){state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Nueva versión con patrón L-N-N-N-Tarde y ${state.selected.length} FT habilitados para redistribución.`});save(true);render()}
 function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`turnos-eds-v${state.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
@@ -331,9 +374,9 @@ document.getElementById('vacBtn').onclick=vacationModal;
 document.getElementById('compBtn').onclick=()=>absenceModal('COMP');
 document.getElementById('cloudBtn').onclick=cloudModal;
 document.getElementById('genBtn').onclick=generate;
-document.getElementById('cycleStart').onchange=e=>{const dt=parseDate(e.target.value);if(dt.getDay()!==1){alert('El inicio del ciclo debe ser lunes.');e.target.value=state.start;return}state.start=e.target.value;state.version++;state.seed=0;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Inicio ciclo cambiado a ${state.start}; superciclo nocturno recalculado.`});render()};
+document.getElementById('cycleStart').onchange=e=>{const dt=parseDate(e.target.value);if(dt.getDay()!==1){alert('El inicio del ciclo debe ser lunes.');e.target.value=state.start;return}state.start=e.target.value;state.version++;state.seed=0;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Inicio ciclo cambiado a ${state.start}; superciclo nocturno recalculado.`});save(true);render()};
 document.getElementById('exportBtn').onclick=exportJSON;
-document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state={...state,...JSON.parse(r.result)};render()}catch(err){alert('JSON inválido')}};r.readAsText(f)};
+document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state={...state,...JSON.parse(r.result)};save(true);render()}catch(err){alert('JSON inválido')}};r.readAsText(f)};
 render();
 initCloud();
 })();

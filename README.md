@@ -1,54 +1,62 @@
-# Turnos EDS v1.0
+# Turnos EDS v1.2 — espacio compartido global
 
-Primera versión con persistencia completa en Supabase configurada para el proyecto indicado.
+Esta versión cambia la persistencia para que **todos vean la misma programación**, sin importar el navegador, dispositivo o usuario.
 
-## Supabase configurado
+## Comportamiento
 
-- Project URL: `https://ukimyerrhdqdnrumtpif.supabase.co`
-- Publishable key incluida en `config.js`.
-- Acceso: **administrador con email/contraseña mediante Supabase Auth**.
-- No se usa ni se necesita `service_role` en el frontend.
+- Invitado sin login: puede ver la programación compartida de `workspace = principal`.
+- Usuario autenticado: ve la misma programación y puede editarla.
+- Todos los cambios hechos por un usuario autenticado se guardan en la misma fila global y luego se muestran a cualquier visitante.
+- La aplicación recarga automáticamente el estado compartido al abrir, al volver a enfocar la pestaña y cada 30 segundos.
+- `localStorage` queda solo como respaldo local, no como fuente oficial cuando existe información remota.
 
-## Qué se guarda automáticamente
+## Configuración Supabase
 
-El objeto completo de estado de la aplicación se persiste en `turnos_eds_state`, por lo que incluye:
+El proyecto ya está configurado en `config.js` con la URL y publishable key indicadas.
 
-- nombres de FT y PT;
-- nuevos atendedores agregados;
-- selección/desmarcado para regeneración;
-- fecha de inicio del ciclo;
-- versión actual y seed del generador;
-- vacaciones manuales desde/hasta;
-- licencias médicas;
-- compensatorios;
-- overrides/cambios del ciclo;
-- historial de versiones;
-- configuración de la dotación incluida en el estado.
+### Paso obligatorio
 
-Al generar una nueva versión se crea además un snapshot en `turnos_eds_versions`.
+Ejecuta una sola vez en Supabase > SQL Editor:
+
+`supabase/shared_workspace.sql`
+
+Ese script crea dos tablas nuevas, sin tocar las tablas anteriores:
+
+- `turnos_eds_shared_state`
+- `turnos_eds_shared_versions`
+
+La primera mantiene una sola fila global para `workspace = principal`.
 
 ## Seguridad
 
-El script `supabase/schema.sql` activa RLS. Cada usuario autenticado solo puede leer y modificar filas cuyo `user_id` sea su propio `auth.uid()`.
+- `anon`: SELECT solamente.
+- `authenticated`: SELECT + INSERT + UPDATE + DELETE.
+- RLS activo.
+- Invitados no pueden modificar la programación.
+- La `service_role` no se usa en frontend.
 
-La publishable key puede estar en el frontend porque **RLS es la barrera de seguridad**. No colocar nunca una `service_role` key en este repositorio.
+## Primera publicación
 
-## Puesta en marcha
+Si todavía no existe la fila `principal`, un invitado verá la malla base local. El primer usuario autenticado que haga un guardado creará la fila global. Desde ese momento todos los visitantes cargarán esa misma programación.
 
-1. En Supabase abre **SQL Editor** y ejecuta `supabase/schema.sql`.
-2. En **Authentication > Users**, crea el usuario administrador (o habilita el método de alta que prefieras).
-3. Sube este repositorio a GitHub/Vercel/GitHub Pages.
-4. Abre la aplicación y pulsa **Supabase**.
-5. Inicia sesión con el usuario administrador.
-6. Desde ese momento cada cambio se guarda automáticamente en Supabase. `localStorage` queda como respaldo local.
+## Verificar guardado
+
+Después de guardar desde la app, ejecutar:
+
+```sql
+select
+  workspace,
+  updated_at,
+  updated_by,
+  state -> 'workers' as workers
+from public.turnos_eds_shared_state
+where workspace = 'principal';
+```
+
+Debe retornar exactamente una fila.
 
 ## Archivos
 
 - `index.html`: aplicación.
-- `config.js`: URL y publishable key del proyecto.
-- `supabase/schema.sql`: tablas, índices, permisos y RLS.
-- `README.md`: instrucciones.
-
-## Reglas de turnos conservadas
-
-Se conserva toda la lógica de la v0.9: 28 FT base + FT agregables, 8 PT con sus horarios preservados, patrón L → N → N → N → Tarde, máximo 2 libres por semana, máximo 6 días consecutivos, 2 N por noche, M1 máximo 6, VAC manual única por ciclo, LM/COMP, cobertura crítica y generación de versiones.
+- `config.js`: configuración pública Supabase.
+- `supabase/shared_workspace.sql`: tablas, grants y RLS para el espacio compartido.
