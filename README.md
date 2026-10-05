@@ -1,4 +1,4 @@
-# Turnos EDS v1.2 — espacio compartido global
+# Turnos EDS v1.3 — espacio compartido global
 
 Esta versión cambia la persistencia para que **todos vean la misma programación**, sin importar el navegador, dispositivo o usuario.
 
@@ -60,3 +60,10 @@ Debe retornar exactamente una fila.
 - `index.html`: aplicación.
 - `config.js`: configuración pública Supabase.
 - `supabase/shared_workspace.sql`: tablas, grants y RLS para el espacio compartido.
+
+
+## v1.3
+- Licencias médicas se asignan por fechas calendario reales (desde/hasta) y se guardan como rangos persistentes.
+- La malla descuenta automáticamente LM, VAC y COMP de la dotación.
+- Nuevo panel **Dotación por hora**: 24 horas x 7 días de la semana visible, con alertas visuales sobre el piso crítico.
+- Se incluye `config.js` y `supabase/shared_workspace.sql` en el repositorio.
