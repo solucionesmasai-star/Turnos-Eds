@@ -1,38 +1,54 @@
-# Turnos EDS v0.9
+# Turnos EDS v1.0
 
-Evolución de la v0.8 con dotación FT dinámica y nombres editables. Conserva el motor de turnos, PT, vacaciones manuales, licencias, compensatorios y persistencia del estado.
+Primera versión con persistencia completa en Supabase configurada para el proyecto indicado.
 
-## Nuevo en v0.9
+## Supabase configurado
 
-- Botón **+ Atendedor** en la barra principal.
-- Cada nuevo atendedor FT recibe automáticamente un patrón compatible de trabajo/libres.
-- Al agregarse queda seleccionado y entra inmediatamente al motor de asignación de turnos.
-- El excedente de dotación se distribuye automáticamente entre familias compatibles, priorizando turnos de apoyo/bisagra según la plantilla diaria.
-- Los nombres de todos los FT se pueden editar desde **Atendedores**.
-- Los nombres de los 8 PT también se pueden editar sin modificar sus días ni horarios.
-- El nombre personalizado se conserva en el estado local y en Supabase al sincronizar.
-- Los nuevos FT también pueden recibir VAC, LM y COMP desde los controles existentes.
-- Seleccionar/desmarcar un FT sigue controlando su prioridad al generar nuevas versiones.
+- Project URL: `https://ukimyerrhdqdnrumtpif.supabase.co`
+- Publishable key incluida en `config.js`.
+- Acceso: **administrador con email/contraseña mediante Supabase Auth**.
+- No se usa ni se necesita `service_role` en el frontend.
 
-## Reglas operacionales conservadas
+## Qué se guarda automáticamente
 
-- 2 atendedores N por noche.
-- Ancla: L → N → N → N → Tarde.
-- Máximo 2 libres por semana.
-- Máximo 6 días consecutivos.
-- M1 máximo 6 atendedores L-V.
-- 06:00–07:00 L-V: piso aceptado 8 (6 M1 + 2 N).
-- Desde 07:00: cobertura crítica mínima 9.
-- M1 no se utiliza como base sábado/domingo.
-- Los PT conservan sus días y horarios actuales.
-- Solo 1 FT puede tener vacaciones por ciclo y se asigna manualmente.
-- LM y COMP permanecen independientes.
+El objeto completo de estado de la aplicación se persiste en `turnos_eds_state`, por lo que incluye:
 
-## Persistencia
+- nombres de FT y PT;
+- nuevos atendedores agregados;
+- selección/desmarcado para regeneración;
+- fecha de inicio del ciclo;
+- versión actual y seed del generador;
+- vacaciones manuales desde/hasta;
+- licencias médicas;
+- compensatorios;
+- overrides/cambios del ciclo;
+- historial de versiones;
+- configuración de la dotación incluida en el estado.
 
-El estado completo incluye ahora `workers` y `ptNames`. Cuando Supabase está configurado, estos datos viajan dentro del mismo objeto de estado, por lo que no requiere una tabla adicional para esta versión. `localStorage` sigue funcionando como respaldo.
+Al generar una nueva versión se crea además un snapshot en `turnos_eds_versions`.
+
+## Seguridad
+
+El script `supabase/schema.sql` activa RLS. Cada usuario autenticado solo puede leer y modificar filas cuyo `user_id` sea su propio `auth.uid()`.
+
+La publishable key puede estar en el frontend porque **RLS es la barrera de seguridad**. No colocar nunca una `service_role` key en este repositorio.
+
+## Puesta en marcha
+
+1. En Supabase abre **SQL Editor** y ejecuta `supabase/schema.sql`.
+2. En **Authentication > Users**, crea el usuario administrador (o habilita el método de alta que prefieras).
+3. Sube este repositorio a GitHub/Vercel/GitHub Pages.
+4. Abre la aplicación y pulsa **Supabase**.
+5. Inicia sesión con el usuario administrador.
+6. Desde ese momento cada cambio se guarda automáticamente en Supabase. `localStorage` queda como respaldo local.
 
 ## Archivos
 
-- `index.html`: aplicación completa.
-- `README.md`: documentación de esta versión.
+- `index.html`: aplicación.
+- `config.js`: URL y publishable key del proyecto.
+- `supabase/schema.sql`: tablas, índices, permisos y RLS.
+- `README.md`: instrucciones.
+
+## Reglas de turnos conservadas
+
+Se conserva toda la lógica de la v0.9: 28 FT base + FT agregables, 8 PT con sus horarios preservados, patrón L → N → N → N → Tarde, máximo 2 libres por semana, máximo 6 días consecutivos, 2 N por noche, M1 máximo 6, VAC manual única por ciclo, LM/COMP, cobertura crítica y generación de versiones.

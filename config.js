@@ -1,6 +1,6 @@
-// Configuración local. Completar antes de publicar.
-// La publishable/anon key puede usarse en frontend siempre que RLS esté correctamente configurado.
+// Configuración pública del proyecto Supabase.
+// La publishable key está diseñada para uso en frontend siempre que RLS esté activo.
 window.SUPABASE_CONFIG = {
-  url: '',
-  publishableKey: ''
+  url: 'https://ukimyerrhdqdnrumtpif.supabase.co',
+  publishableKey: 'sb_publishable_y0XSo5eEFzZ-zoB4eq4sPQ_ruiQvw5v'
 };
