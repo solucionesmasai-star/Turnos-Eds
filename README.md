@@ -1,4 +1,4 @@
-# Turnos EDS v1.4 — espacio compartido global
+# Turnos EDS v1.5 — espacio compartido global
 
 Esta versión cambia la persistencia para que **todos vean la misma programación**, sin importar el navegador, dispositivo o usuario.
 
@@ -62,15 +62,25 @@ Debe retornar exactamente una fila.
 - `supabase/shared_workspace.sql`: tablas, grants y RLS para el espacio compartido.
 
 
-## v1.4
+## v1.5
 - Licencias médicas se asignan por fechas calendario reales (desde/hasta) y se guardan como rangos persistentes.
 - La malla descuenta automáticamente LM, VAC y COMP de la dotación.
 - Nuevo panel **Dotación por hora**: 24 horas x 7 días de la semana visible, con alertas visuales sobre el piso crítico.
 - Se incluye `config.js` y `supabase/shared_workspace.sql` en el repositorio.
 
 
-## Cambios v1.4
+## Cambios v1.5
 - La semana visualizada es estado local de interfaz y ya no se reinicia por polling/focus de Supabase.
 - Botón Reiniciar LM/VAC con opciones independientes o ambas.
 - Generar versión fuerza guardado inmediato y confirma visualmente la nueva versión.
 - Dotación por hora se mide a HH:05 para evitar doble conteo en relevos.
+
+
+## v1.5 – Dotación máxima 12
+
+- Se fija un máximo operativo de 12 atendedores efectivos por hora en franjas críticas.
+- El indicador descuenta colaciones de 30 minutos.
+- Las colaciones se escalonan automáticamente para reducir sobre-dotación sin bajar del mínimo crítico.
+- M1 se mantiene en 6; con los 2 N se aceptan 8 personas entre 06:00 y 07:00 de lunes a viernes.
+- Desde las 07:00 el objetivo es 9–12 atendedores efectivos.
+- La lectura horaria continúa realizándose a HH:05 para evitar doble conteo en relevos.

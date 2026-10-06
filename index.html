@@ -14,13 +14,13 @@
 </head>
 <body>
 <main class="app" id="app">
-<header class="top"><div><div class="eyebrow">EDS · MOTOR DE TURNOS 24/7 · V1.4</div><h1>Planificador maestro</h1><div class="sub">Vista de 4 semanas · superciclo de 12 semanas · L → N → N → N → Tarde · 28 FT + 8 PT · cobertura crítica mínima 9</div></div><div class="actions"><button class="btn primary" id="addWorkerBtn">+ Atendedor</button><button class="btn" id="workersBtn">Atendedores</button><button class="btn" id="vacBtn">Asignar vacaciones</button><button class="btn danger" id="lmBtn">Licencia médica</button><button class="btn" id="resetAbsBtn">Reiniciar LM/VAC</button><button class="btn" id="compBtn">Compensatorio</button><button class="btn" id="cloudBtn">Supabase</button><button class="btn primary" id="genBtn">Generar versión</button></div></header>
+<header class="top"><div><div class="eyebrow">EDS · MOTOR DE TURNOS 24/7 · V1.5</div><h1>Planificador maestro</h1><div class="sub">Vista de 4 semanas · superciclo de 12 semanas · L → N → N → N → Tarde · 28 FT + 8 PT · cobertura crítica 9–12 · colaciones escalonadas</div></div><div class="actions"><button class="btn primary" id="addWorkerBtn">+ Atendedor</button><button class="btn" id="workersBtn">Atendedores</button><button class="btn" id="vacBtn">Asignar vacaciones</button><button class="btn danger" id="lmBtn">Licencia médica</button><button class="btn" id="resetAbsBtn">Reiniciar LM/VAC</button><button class="btn" id="compBtn">Compensatorio</button><button class="btn" id="cloudBtn">Supabase</button><button class="btn primary" id="genBtn">Generar versión</button></div></header>
 <section class="grid summary" id="summary"></section>
 <div id="editModeHint" class="sub" style="margin:12px 0 4px"></div><section class="toolbar"><div class="week-tabs" id="tabs"></div><div class="grow"></div><div class="datebox"><label>Inicio ciclo</label><input id="cycleStart" type="date" value="2026-10-05"></div><button class="btn" id="exportBtn">Exportar JSON</button><label class="btn" for="importFile">Importar JSON</label><input id="importFile" class="hidden" type="file" accept="application/json"></section>
 <section class="panel"><div class="panel-head"><div><h2>Malla de turnos</h2><div class="sub" id="weekLabel"></div></div><div class="legend"><span class="N">N</span><span class="M1">Mañana</span><span class="B1">Bisagra</span><span class="T2">Tarde</span><span class="L">Libre</span><span class="VAC">VAC</span><span class="LM">LM</span><span class="COMP">COMP</span><span class="PTFIX">PT fijo</span></div></div><div class="scroll"><table><thead id="head"></thead><tbody id="body"></tbody></table></div></section>
-<section class="panel"><div class="panel-head"><div><h2>Cobertura diaria</h2><div class="sub">Incluye FT y PT. Objetivo duro: mínimo 9 en horas críticas; las reducciones -30/-15 min se absorben preferentemente en cierre.</div></div></div><div class="grid coverage" id="coverage"></div></section>
+<section class="panel"><div class="panel-head"><div><h2>Cobertura diaria</h2><div class="sub">Incluye FT y PT y descuenta automáticamente las colaciones. Objetivo operativo: entre 9 y 12 atendedores efectivos en horas críticas; 06:00–07:00 L-V se acepta 8.</div></div></div><div class="grid coverage" id="coverage"></div></section>
 <section class="panel"><div class="panel-head"><div><h2>Dotación por hora</h2><div class="sub">Cantidad real de atendedores activos por hora, medida a los 5 minutos de cada hora (HH:05) para evitar doble conteo en cambios de turno. Incluye FT y PT y descuenta VAC/LM/COMP.</div></div></div><div class="scroll"><table class="hourtable"><thead id="hourHead"></thead><tbody id="hourBody"></tbody></table></div></section>
-<section class="panel"><div class="panel-head"><div><h2>Validaciones</h2><div class="sub">Máximo 6 días consecutivos, máximo 2 libres por semana, 42 h, exactamente 2 N diarios, patrón L→N→N→N→Tarde y cobertura crítica ≥9 desde las 07:00; entre 06:00–07:00 se acepta 8 (6 M1 + 2 N).</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge" id="cloudStatus">Supabase: local</span><span class="badge" id="versionBadge"></span></div></div><div class="alerts" id="alerts"></div></section>
+<section class="panel"><div class="panel-head"><div><h2>Validaciones</h2><div class="sub">Máximo 6 días consecutivos, máximo 2 libres por semana, 42 h, exactamente 2 N diarios, patrón L→N→N→N→Tarde y dotación efectiva objetivo 9–12 desde las 07:00; entre 06:00–07:00 se acepta 8 (6 M1 + 2 N). Las colaciones de 30 min se escalonan para reducir sobre-dotación.</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge" id="cloudStatus">Supabase: local</span><span class="badge" id="versionBadge"></span></div></div><div class="alerts" id="alerts"></div></section>
 <section class="panel"><div class="panel-head"><div><h2>Historial de versiones</h2><div class="sub">La programación es compartida: invitados leen desde Supabase y usuarios autenticados pueden guardar cambios para todos.</div></div></div><div class="alerts history" id="history"></div></section>
 </main><div id="modal"></div>
 
@@ -250,12 +250,50 @@ function allocateDay(d,nights,reds){
  }
  while(remaining.length){const w=remaining.shift();entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:'B1',reduction:reds[w]?.[d]||0})}
  for(const p of PT)entries.push({id:p.id,type:'PT',status:p.days.includes(d%7)?'PTFIX':'L',shift:p.days.includes(d%7)?p.shift:null,reduction:0});
+ return assignBreaks(entries,d);
+}
+function breakMinFor(d,m){if(d%7<5&&m>=360&&m<420)return 8;if(m>=420&&m<=1320)return 9;return 0}
+function activeWithoutBreak(x,m){return ['WORK','N','PTFIX'].includes(x.status)&&x.shift&&mins(SHIFT[x.shift][0])<=m&&endMinute(x)>m}
+function breakEligible(x,slot){
+ if(!x.shift||!['WORK','N','PTFIX'].includes(x.status)||x.breakStart!=null)return false;
+ const st=mins(SHIFT[x.shift][0]),en=endMinute(x);
+ // Colación dentro del turno, evitando primera/última parte del servicio.
+ return slot>=st+150 && slot+30<=en-60;
+}
+function assignBreaks(entries,d){
+ for(const x of entries)x.breakStart=null;
+ const cov=(m)=>entries.filter(x=>activeWithoutBreak(x,m)&&!(x.breakStart!=null&&m>=x.breakStart&&m<x.breakStart+30)).length;
+ const pref={B1:0,B2:1,M3:2,M2:3,T1:4,T2:5,M1:6,N:7};
+ // Fase 1: reducir cualquier sobre-dotación >12 en muestras de 30 min.
+ for(let slot=420;slot<=1320;slot+=30){
+   const sample=slot+5;
+   while(cov(sample)>12){
+     const candidates=entries.filter(x=>breakEligible(x,slot)&&activeWithoutBreak(x,sample));
+     if(!candidates.length)break;
+     candidates.sort((a,b)=>(pref[a.shift]??8)-(pref[b.shift]??8)||(a.type==='PT'?1:0)-(b.type==='PT'?1:0));
+     candidates[0].breakStart=slot;
+   }
+ }
+ // Fase 2: asignar colación al resto, buscando la franja con mayor holgura y sin bajar mínimos.
+ for(const x of entries){
+   if(!x.shift||!['WORK','N','PTFIX'].includes(x.status)||x.breakStart!=null)continue;
+   const st=mins(SHIFT[x.shift][0]),en=endMinute(x),slots=[];
+   for(let slot=Math.ceil((st+150)/30)*30;slot+30<=en-60;slot+=30){
+     const sample=slot+5;if(!activeWithoutBreak(x,sample))continue;
+     const before=cov(sample),after=before-1,min=breakMinFor(d,sample);
+     if(after<min)continue;
+     // Preferir :30 para no concentrar la colación en el minuto de lectura horaria; después, mayor cobertura.
+     const halfPref=slot%60===30?0:1,mid=Math.abs((slot+15)-((st+en)/2));
+     slots.push([halfPref, -before, mid, slot]);
+   }
+   if(slots.length){slots.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);x.breakStart=slots[0][3]}
+ }
  return entries;
 }
 function buildSchedule(){const reds=reductionMap(),nm=buildNightSets();return {days:Array.from({length:28},(_,d)=>allocateDay(d,nm.nights,reds)),nightCounts:nm.counts,nights:nm.nights,reds}}
 function endMinute(x){if(!x.shift)return null;return mins(SHIFT[x.shift][1])-(x.reduction||0)}
-function coverageAt(day,m){return day.filter(x=>['WORK','N','PTFIX'].includes(x.status)&&x.shift&&mins(SHIFT[x.shift][0])<=m&&endMinute(x)>m).length}
-function coverageMetric(day,d){const start=d%7>=5?420:360;let worst=99,worstAt='';for(let m=start;m<=1320;m+=30){const n=coverageAt(day,m);if(n<worst){worst=n;worstAt=time(m)}}return {worst,worstAt,at06:coverageAt(day,360),at07:coverageAt(day,420),at12:coverageAt(day,720),at18:coverageAt(day,1080),at22:coverageAt(day,1320),at2330:coverageAt(day,1410)}}
+function coverageAt(day,m){return day.filter(x=>activeWithoutBreak(x,m)&&!(x.breakStart!=null&&m>=x.breakStart&&m<x.breakStart+30)).length}
+function coverageMetric(day,d){const start=d%7>=5?420:360;let worst=99,worstAt='',peak=0,peakAt='';for(let m=start;m<=1320;m+=30){const n=coverageAt(day,m);if(n<worst){worst=n;worstAt=time(m)}if(n>peak){peak=n;peakAt=time(m)}}return {worst,worstAt,peak,peakAt,at06:coverageAt(day,365),at07:coverageAt(day,425),at12:coverageAt(day,725),at18:coverageAt(day,1085),at22:coverageAt(day,1325),at2330:coverageAt(day,1415)}}
 function weeklyHours(w,k,reds){let m=0;for(let d=k*7;d<k*7+7;d++)if(workingBase(w,d))m+=510-(reds[w]?.[d]||0);return m/60}
 function maxRun(w){const pat=basePattern(w)||[];const arr=Array.from({length:84},(_,d)=>!!pat[d]),seq=arr.concat(arr.slice(0,7));let max=0,r=0;for(const v of seq){r=v?r+1:0;max=Math.max(max,r)}return max}
 
@@ -273,9 +311,9 @@ function validations(schedule){
  for(let d=0;d<28;d++){
    const n=schedule.days[d].filter(x=>x.status==='N').length;if(n!==2)out.push({t:'err',m:`${fmt(d)}: ${n} N activos; deben ser 2.`});
    if(d%7<5){
-     for(let m=360;m<420;m+=30){const c=coverageAt(schedule.days[d],m);if(c<8){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<8 entre 06:00–07:00).`});break}}
+     for(let m=365;m<420;m+=30){const c=coverageAt(schedule.days[d],m);if(c<8){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<8 entre 06:00–07:00).`});break}}
    }
-   const start=420;for(let m=start;m<=1320;m+=30){const c=coverageAt(schedule.days[d],m);if(c<9){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<9 en horario crítico desde 07:00).`});break}}
+   const start=425;for(let m=start;m<=1325;m+=30){const c=coverageAt(schedule.days[d],m);if(c<9){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<9 en horario crítico desde 07:00).`});break}if(c>12){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (>12; máximo operativo).`});break}}
  }
  // Validación del patrón L-N-N-N-T para los N planificados base.
  for(const w of workerIds())for(let d=0;d<28;d++){
@@ -290,11 +328,11 @@ function validations(schedule){
  }
  // Reemplazos de contingencia que no siguen el bloque natural.
  for(let d=0;d<28;d++)for(const x of schedule.days[d])if(x.status==='N'&&x.type==='FT'&&!scheduledNight(x.w,d))out.push({t:'warn',m:`${fmt(d)}: A${x.w} cubre N por contingencia fuera de su bloque N-N-N.`});
- if(!hard)out.unshift({t:'ok',m:'Cobertura validada: mínimo 8 entre 06:00–07:00 L-V y mínimo 9 desde las 07:00 en horario crítico.'});
+ if(!hard)out.unshift({t:'ok',m:'Cobertura validada: 8 entre 06:00–07:00 L-V y entre 9–12 atendedores efectivos desde las 07:00 en horario crítico.'});
  out.unshift({t:'ok',m:'Continuidad base validada: máximo 2 libres por semana y máximo 6 días consecutivos.'});
  return out;
 }
-function cell(x){let code=x.status,cls=code;if(code==='WORK'){code=x.shift||'—';cls=x.shift||'L'}else if(code==='PTFIX'){code=x.shift;cls='PTFIX'}let sub='';if(x.shift&&['WORK','N','PTFIX'].includes(x.status))sub=`${SHIFT[x.shift][0]}–${time(endMinute(x))}${x.reduction?` · -${x.reduction}m`:''}${x.anchor==='POST_N'?' · post NNN':''}`;if(code==='VAC')sub='vacaciones';if(code==='LM')sub='licencia médica';if(code==='COMP')sub='compensatorio';return `<td><span class="cell ${cls}">${code}<span class="small">${sub}</span></span></td>`}
+function cell(x){let code=x.status,cls=code;if(code==='WORK'){code=x.shift||'—';cls=x.shift||'L'}else if(code==='PTFIX'){code=x.shift;cls='PTFIX'}let sub='';if(x.shift&&['WORK','N','PTFIX'].includes(x.status))sub=`${SHIFT[x.shift][0]}–${time(endMinute(x))}${x.reduction?` · -${x.reduction}m`:''}${x.anchor==='POST_N'?' · post NNN':''}${x.breakStart!=null?` · col ${time(x.breakStart)}`:''}`;if(code==='VAC')sub='vacaciones';if(code==='LM')sub='licencia médica';if(code==='COMP')sub='compensatorio';return `<td><span class="cell ${cls}">${code}<span class="small">${sub}</span></span></td>`}
 function render(){
  const schedule=buildSchedule(),days=schedule.days,k=ui.week,vals=validations(schedule),errs=vals.filter(x=>x.t==='err').length,warns=vals.filter(x=>x.t==='warn').length;
  document.getElementById('versionBadge').textContent='Versión '+state.version;document.getElementById('cycleStart').value=state.start;
@@ -317,9 +355,9 @@ function render(){
    rows+='<td><span class="small">Horario PT preservado</span></td></tr>';
  }
  document.getElementById('body').innerHTML=rows;
- document.getElementById('coverage').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j,c=coverageMetric(days[d],d),ok=c.worst>=9;return `<div class="daycov ${ok?'ok':'bad'}"><b>${DOW[j]} ${fmt(d)}</b><div class="small">mínimo crítico ${c.worst} a las ${c.worstAt}</div><div class="bar"><i style="width:${Math.min(100,c.worst/12*100)}%"></i></div><div class="small">06h ${c.at06} · 07h ${c.at07} · 12h ${c.at12}<br>18h ${c.at18} · 22h ${c.at22} · 23:30 ${c.at2330}</div></div>`}).join('');
+ document.getElementById('coverage').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j,c=coverageMetric(days[d],d),ok=c.worst>=9;return `<div class="daycov ${ok?'ok':'bad'}"><b>${DOW[j]} ${fmt(d)}</b><div class="small">mínimo ${c.worst} (${c.worstAt}) · máximo ${c.peak} (${c.peakAt})</div><div class="bar"><i style="width:${Math.min(100,c.peak/12*100)}%"></i></div><div class="small">06h ${c.at06} · 07h ${c.at07} · 12h ${c.at12}<br>18h ${c.at18} · 22h ${c.at22} · 23:30 ${c.at2330}</div></div>`}).join('');
  document.getElementById('hourHead').innerHTML='<tr><th class="hour-day">Día</th>'+Array.from({length:24},(_,h)=>`<th>${String(h).padStart(2,'0')}:05</th>`).join('')+'</tr>';
- document.getElementById('hourBody').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j;let cells='';for(let h=0;h<24;h++){const sample=h*60+5,c=coverageAt(days[d],sample),weekend=d%7>=5;let cls='hour-low';if(h>=7&&h<=22)cls=c>=9?'hour-ok':'hour-bad';else if(!weekend&&h===6)cls=c>=8?'hour-ok':'hour-bad';else if(h>=23)cls=c>=7?'hour-warn':'hour-low';cells+=`<td class="${cls}" title="${DOW[j]} ${fmt(d)} · ${String(h).padStart(2,'0')}:05 · ${c} atendedores">${c}</td>`}return `<tr><td class="hour-day">${DOW[j]} ${fmt(d)}</td>${cells}</tr>`}).join('');
+ document.getElementById('hourBody').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j;let cells='';for(let h=0;h<24;h++){const sample=h*60+5,c=coverageAt(days[d],sample),weekend=d%7>=5;let cls='hour-low';if(h>=7&&h<=22)cls=(c>=9&&c<=12)?'hour-ok':'hour-bad';else if(!weekend&&h===6)cls=c>=8?'hour-ok':'hour-bad';else if(h>=23)cls=c>=7?'hour-warn':'hour-low';cells+=`<td class="${cls}" title="${DOW[j]} ${fmt(d)} · ${String(h).padStart(2,'0')}:05 · ${c} atendedores">${c}</td>`}return `<tr><td class="hour-day">${DOW[j]} ${fmt(d)}</td>${cells}</tr>`}).join('');
  document.getElementById('alerts').innerHTML=vals.slice(0,60).map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('')+(vals.length>60?`<div class="alert warn">+${vals.length-60} alertas adicionales.</div>`:'');
  document.getElementById('history').innerHTML=state.history.length?state.history.slice().reverse().map(h=>`<div>v${h.v} · ${h.when} · ${h.note}</div>`).join(''):'Sin versiones adicionales todavía.';
  setEditingState();
