@@ -84,3 +84,10 @@ Debe retornar exactamente una fila.
 - M1 se mantiene en 6; con los 2 N se aceptan 8 personas entre 06:00 y 07:00 de lunes a viernes.
 - Desde las 07:00 el objetivo es 9–12 atendedores efectivos.
 - La lectura horaria continúa realizándose a HH:05 para evitar doble conteo en relevos.
+
+## v1.6
+- Sobrecobertura >12 ya no es error: se muestra como advertencia informativa.
+- Refuerzo prioritario 08:00–11:00 moviendo capacidad desde T2 a M3/B1/T1 cuando la dotación diaria lo permite.
+- Las colaciones quedan bloqueadas entre 08:00 y 11:00 para no debilitar el peak de mañana.
+- Se mantiene M1 máximo 6, 2 N diarios, PT sin cambios y todas las reglas previas.
+- La redistribución conserva cobertura tardía mínima donde la dotación lo permite; en dotaciones muy bajas prima no romper las reglas duras.
