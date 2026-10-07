@@ -1,65 +1,99 @@
-# Turnos EDS v1.4
+# Turnos EDS v1.5 — espacio compartido global
 
-Versión con rotación semanal automática orientada a equidad y reincorporación de turnos bisagra para mantener continuidad de servicio durante los relevos.
+Esta versión cambia la persistencia para que **todos vean la misma programación**, sin importar el navegador, dispositivo o usuario.
 
-## Familias operativas
+## Comportamiento
 
-### Familias principales de rotación
-- M1: 06:00–15:00
-- M2: 07:00–16:00
-- T1: 13:00–22:00
-- T2: 15:00–24:00
+- Invitado sin login: puede ver la programación compartida de `workspace = principal`.
+- Usuario autenticado: ve la misma programación y puede editarla.
+- Todos los cambios hechos por un usuario autenticado se guardan en la misma fila global y luego se muestran a cualquier visitante.
+- La aplicación recarga automáticamente el estado compartido al abrir, al volver a enfocar la pestaña y cada 30 segundos.
+- `localStorage` queda solo como respaldo local, no como fuente oficial cuando existe información remota.
 
-La rotación semanal principal sigue siendo progresiva entre M1 → M2 → T1 → T2.
+## Configuración Supabase
 
-### Turnos bisagra
-- B1: 09:00–18:00
-- B2: 11:00–20:00
+El proyecto ya está configurado en `config.js` con la URL y publishable key indicadas.
 
-B1 y B2 no reemplazan la rotación principal. El motor los usa automáticamente para:
-- suavizar el cambio mañana → tarde;
-- mantener continuidad de atención en los relevos;
-- cubrir colaciones y franjas de transición;
-- absorber dotación excedente antes de concentrarla en una familia principal;
-- reducir cambios bruscos de horario entre semanas.
+### Paso obligatorio
 
-El motor favorece B1 para trabajadores cercanos a la transición M2/T1 y B2 para trabajadores cercanos a T1/T2.
+Ejecuta una sola vez en Supabase > SQL Editor:
 
-## Reglas conservadas
+`supabase/shared_workspace.sql`
 
-- N: 00:00–09:00.
-- Exactamente 2 atendedores N por noche.
-- Secuencia nocturna dura: L → N → N → N → Tarde.
-- Antes del primer N debe existir L.
-- Después del bloque NNN se asigna T1 o T2.
-- Máximo 2 libres por semana.
-- Máximo 6 días continuos.
-- L–V 06:00–07:00: objetivo mínimo 8 (6 M1 + 2 N).
-- Desde 07:00 hasta 22:00: mínimo crítico 9.
-- Sábado y domingo no se usa M1 como familia base.
-- PT mantienen sus días y horarios existentes.
-- Vacaciones: una asignación manual por ciclo, nunca aleatoria.
-- Licencias y compensatorios provocan redistribución automática.
-- Nuevos FT se incorporan al motor automáticamente.
-- Estado global compartido en Supabase: invitados leen; usuarios autenticados editan.
+Ese script crea dos tablas nuevas, sin tocar las tablas anteriores:
 
-## Supabase
+- `turnos_eds_shared_state`
+- `turnos_eds_shared_versions`
 
-`config.js` viene incluido con la URL y publishable key del proyecto. No se incluye ninguna `service_role` key.
+La primera mantiene una sola fila global para `workspace = principal`.
 
-No requiere cambios de esquema respecto de la versión compartida ya aplicada en Supabase.
+## Seguridad
 
-## Publicación
+- `anon`: SELECT solamente.
+- `authenticated`: SELECT + INSERT + UPDATE + DELETE.
+- RLS activo.
+- Invitados no pueden modificar la programación.
+- La `service_role` no se usa en frontend.
 
-Sube juntos a GitHub/Vercel:
-- `index.html`
-- `config.js`
-- `README.md`
+## Primera publicación
 
-## v1.5 — transición de tarde protegida
+Si todavía no existe la fila `principal`, un invitado verá la malla base local. El primer usuario autenticado que haga un guardado creará la fila global. Desde ese momento todos los visitantes cargarán esa misma programación.
 
-- Regla dura nueva: después de T1 o T2, el día siguiente nunca puede ser M1 ni M2.
-- El motor reconfigura automáticamente usando T1/T2, B1/B2, descanso o N según corresponda.
-- B1/B2 se mantienen como turnos bisagra para suavizar cambios de bloque sin afectar la experiencia del cliente.
-- La regla se valida también entre el último día del ciclo y el primer día del ciclo siguiente.
-- Se conserva L → N → N → N → Tarde, máximo 2 libres por semana, 2 N diarios, cobertura crítica y persistencia Supabase compartida.
+## Verificar guardado
+
+Después de guardar desde la app, ejecutar:
+
+```sql
+select
+  workspace,
+  updated_at,
+  updated_by,
+  state -> 'workers' as workers
+from public.turnos_eds_shared_state
+where workspace = 'principal';
+```
+
+Debe retornar exactamente una fila.
+
+## Archivos
+
+- `index.html`: aplicación.
+- `config.js`: configuración pública Supabase.
+- `supabase/shared_workspace.sql`: tablas, grants y RLS para el espacio compartido.
+
+
+## v1.5
+- Licencias médicas se asignan por fechas calendario reales (desde/hasta) y se guardan como rangos persistentes.
+- La malla descuenta automáticamente LM, VAC y COMP de la dotación.
+- Nuevo panel **Dotación por hora**: 24 horas x 7 días de la semana visible, con alertas visuales sobre el piso crítico.
+- Se incluye `config.js` y `supabase/shared_workspace.sql` en el repositorio.
+
+
+## Cambios v1.5
+- La semana visualizada es estado local de interfaz y ya no se reinicia por polling/focus de Supabase.
+- Botón Reiniciar LM/VAC con opciones independientes o ambas.
+- Generar versión fuerza guardado inmediato y confirma visualmente la nueva versión.
+- Dotación por hora se mide a HH:05 para evitar doble conteo en relevos.
+
+
+## v1.5 – Dotación máxima 12
+
+- Se fija un máximo operativo de 12 atendedores efectivos por hora en franjas críticas.
+- El indicador descuenta colaciones de 30 minutos.
+- Las colaciones se escalonan automáticamente para reducir sobre-dotación sin bajar del mínimo crítico.
+- M1 se mantiene en 6; con los 2 N se aceptan 8 personas entre 06:00 y 07:00 de lunes a viernes.
+- Desde las 07:00 el objetivo es 9–12 atendedores efectivos.
+- La lectura horaria continúa realizándose a HH:05 para evitar doble conteo en relevos.
+
+## v1.7
+- Sobrecobertura >12 ya no es error: se muestra como advertencia informativa.
+- Refuerzo prioritario 08:00–11:00 moviendo capacidad desde T2 a M3/B1/T1 cuando la dotación diaria lo permite.
+- Las colaciones quedan bloqueadas entre 08:00 y 11:00 para no debilitar el peak de mañana.
+- Se mantiene M1 máximo 6, 2 N diarios, PT sin cambios y todas las reglas previas.
+- La redistribución conserva cobertura tardía mínima donde la dotación lo permite; en dotaciones muy bajas prima no romper las reglas duras.
+
+
+## Cambios v1.7
+- La aplicación ya no asigna ni descuenta colaciones; las administra presencialmente el Jefe de Servicio.
+- La sobrecobertura no genera alertas ni marcación especial en el indicador por hora.
+- El historial de versiones queda oculto por defecto y se abre desde un panel desplegable.
