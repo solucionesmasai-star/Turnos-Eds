@@ -55,3 +55,11 @@ Sube juntos a GitHub/Vercel:
 - `index.html`
 - `config.js`
 - `README.md`
+
+## v1.5 — transición de tarde protegida
+
+- Regla dura nueva: después de T1 o T2, el día siguiente nunca puede ser M1 ni M2.
+- El motor reconfigura automáticamente usando T1/T2, B1/B2, descanso o N según corresponda.
+- B1/B2 se mantienen como turnos bisagra para suavizar cambios de bloque sin afectar la experiencia del cliente.
+- La regla se valida también entre el último día del ciclo y el primer día del ciclo siguiente.
+- Se conserva L → N → N → N → Tarde, máximo 2 libres por semana, 2 N diarios, cobertura crítica y persistencia Supabase compartida.

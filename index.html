@@ -14,12 +14,12 @@
 </head>
 <body>
 <main class="app" id="app">
-<header class="top"><div><div class="eyebrow">EDS · MOTOR DE TURNOS 24/7 · V1.4</div><h1>Planificador maestro</h1><div class="sub">Rotación semanal equitativa · M1/M2 + B1/B2 bisagra + T1/T2 · L → N → N → N → Tarde · 28 FT + 8 PT</div></div><div class="actions"><button class="btn primary" id="addWorkerBtn">+ Atendedor</button><button class="btn" id="workersBtn">Atendedores</button><button class="btn" id="vacBtn">Asignar vacaciones</button><button class="btn danger" id="lmBtn">Licencia médica</button><button class="btn" id="compBtn">Compensatorio</button><button class="btn" id="cloudBtn">Supabase</button><button class="btn primary" id="genBtn">Generar versión</button></div></header>
+<header class="top"><div><div class="eyebrow">EDS · MOTOR DE TURNOS 24/7 · V1.5</div><h1>Planificador maestro</h1><div class="sub">Rotación semanal equitativa · M1/M2 + B1/B2 bisagra + T1/T2 · L → N → N → N → Tarde · Tarde nunca → Mañana · 28 FT + 8 PT</div></div><div class="actions"><button class="btn primary" id="addWorkerBtn">+ Atendedor</button><button class="btn" id="workersBtn">Atendedores</button><button class="btn" id="vacBtn">Asignar vacaciones</button><button class="btn danger" id="lmBtn">Licencia médica</button><button class="btn" id="compBtn">Compensatorio</button><button class="btn" id="cloudBtn">Supabase</button><button class="btn primary" id="genBtn">Generar versión</button></div></header>
 <section class="grid summary" id="summary"></section>
 <section class="toolbar"><div class="week-tabs" id="tabs"></div><div class="grow"></div><div class="datebox"><label>Inicio ciclo</label><input id="cycleStart" type="date" value="2026-10-05"></div><button class="btn" id="exportBtn">Exportar JSON</button><label class="btn" for="importFile">Importar JSON</label><input id="importFile" class="hidden" type="file" accept="application/json"></section>
 <section class="panel"><div class="panel-head"><div><h2>Malla de turnos</h2><div class="sub" id="weekLabel"></div></div><div class="legend"><span class="N">N</span><span class="M1">M1</span><span class="M2">M2</span><span class="B1">B1</span><span class="B2">B2</span><span class="T1">T1</span><span class="T2">T2</span><span class="L">Libre</span><span class="VAC">VAC</span><span class="LM">LM</span><span class="COMP">COMP</span><span class="PTFIX">PT fijo</span></div></div><div class="scroll"><table><thead id="head"></thead><tbody id="body"></tbody></table></div></section>
 <section class="panel"><div class="panel-head"><div><h2>Cobertura diaria</h2><div class="sub">Incluye FT y PT. Objetivo duro: mínimo 9 en horas críticas; las reducciones -30/-15 min se absorben preferentemente en cierre.</div></div></div><div class="grid coverage" id="coverage"></div></section>
-<section class="panel"><div class="panel-head"><div><h2>Control automático</h2><div class="sub">El motor rota semanalmente M1/M2/T1/T2 y usa B1/B2 como turnos bisagra para suavizar relevos, colaciones y transición mañana–tarde. Antes de cada bloque N debe existir L; se mantienen 2 N diarios y cobertura crítica.</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge" id="cloudStatus">Supabase: local</span><span class="badge" id="versionBadge"></span></div></div><div class="alerts" id="alerts"></div></section>
+<section class="panel"><div class="panel-head"><div><h2>Control automático</h2><div class="sub">El motor rota semanalmente M1/M2/T1/T2 y usa B1/B2 como turnos bisagra para suavizar relevos, colaciones y transición mañana–tarde. Después de T1/T2 nunca asigna M1/M2 al día siguiente. Antes de cada bloque N debe existir L; se mantienen 2 N diarios y cobertura crítica.</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge" id="cloudStatus">Supabase: local</span><span class="badge" id="versionBadge"></span></div></div><div class="alerts" id="alerts"></div></section>
 <section class="panel"><div class="panel-head"><div><h2>Historial de versiones</h2><div class="sub">Estado compartido: los invitados leen la misma programación global; solo usuarios autenticados pueden guardar cambios.</div></div></div><div class="alerts history" id="history"></div></section>
 </main><div id="modal"></div>
 
@@ -259,10 +259,18 @@ function rotationScore(w,sh,d,stats){
  }
  return fit+used*4+selectedPenalty+mod(w+d+state.seed,97)/1000;
 }
-function pickForShift(remaining,sh,count,d,stats){
- const ranked=[...remaining].sort((a,b)=>rotationScore(a,sh,d,stats)-rotationScore(b,sh,d,stats));
- const take=ranked.slice(0,Math.min(count,ranked.length));
- return take;
+function previousEntry(prevDay,w){return prevDay?.find(x=>x.id==='A'+w)||null}
+function morningAllowed(w,prevDay){
+ const p=previousEntry(prevDay,w);
+ return !(p&&['WORK','N'].includes(p.status)&&['T1','T2'].includes(p.shift));
+}
+function pickForShift(remaining,sh,count,d,stats,prevDay){
+ let pool=[...remaining];
+ // Regla dura de transición: después de cualquier tarde T1/T2 no se permite M1/M2.
+ // El trabajador puede permanecer en tarde, pasar por B1/B2, descansar o entrar a N si el patrón lo permite.
+ if(['M1','M2'].includes(sh))pool=pool.filter(w=>morningAllowed(w,prevDay));
+ const ranked=pool.sort((a,b)=>rotationScore(a,sh,d,stats)-rotationScore(b,sh,d,stats));
+ return ranked.slice(0,Math.min(count,ranked.length));
 }
 function noteStat(stats,w,d,sh){const k=Math.floor(d/7);stats[w]??={};stats[w][k]??={};stats[w][k][sh]=(stats[w][k][sh]||0)+1}
 
@@ -291,7 +299,7 @@ function buildNightSets(){
  return {nights,counts,adjustments};
 }
 
-function allocateDay(d,nights,reds,stats){
+function allocateDay(d,nights,reds,stats,prevDay){
  const entries=[],active=[];
  for(const w of workerIds()){
    const ov=overrideCode(w,d);
@@ -315,7 +323,7 @@ function allocateDay(d,nights,reds,stats){
  // Rotación semanal automática: cada trabajador avanza M1→M2→T1→T2 y el motor
  // redistribuye automáticamente cuando la cobertura diaria necesita otra mezcla.
  for(const sh of ['M1','M2','B1','B2','T1','T2']){
-   const take=pickForShift(remaining,sh,counts[sh]||0,d,stats);
+   const take=pickForShift(remaining,sh,counts[sh]||0,d,stats,prevDay);
    for(const w of take){entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:sh,reduction:reds[w]?.[d]||0});noteStat(stats,w,d,sh)}
    remaining=remaining.filter(w=>!take.includes(w));
  }
@@ -330,8 +338,15 @@ function allocateDay(d,nights,reds,stats){
  return entries;
 }
 function buildSchedule(){
- const reds=reductionMap(),nm=buildNightSets(),stats={};
- const days=Array.from({length:28},(_,d)=>allocateDay(d,nm.nights,reds,stats));
+ const reds=reductionMap(),nm=buildNightSets();
+ // El calendario es cíclico. Hacemos unas pasadas determinísticas para que la regla
+ // T1/T2 → no M1/M2 también se respete entre el día 28 y el día 1 del ciclo siguiente.
+ let priorTail=null,days=[],stats={};
+ for(let pass=0;pass<4;pass++){
+   stats={};days=[];let prevDay=priorTail;
+   for(let d=0;d<28;d++){const day=allocateDay(d,nm.nights,reds,stats,prevDay);days.push(day);prevDay=day}
+   priorTail=days[27];
+ }
  return {days,nightCounts:nm.counts,nights:nm.nights,reds,stats,autoAdjust:nm.adjustments};
 }
 function endMinute(x){if(!x.shift)return null;return mins(SHIFT[x.shift][1])-(x.reduction||0)}
@@ -352,6 +367,12 @@ function validations(schedule){
  }
  for(let d=0;d<28;d++){
    const n=schedule.days[d].filter(x=>x.status==='N').length;if(n!==2){hard++;out.push({t:'err',m:`${fmt(d)}: solo fue posible asignar ${n} N; se requieren 2.`})}
+   // Verificación de seguridad del motor: tarde nunca puede retroceder directamente a mañana.
+   const prev=schedule.days[mod(d-1,28)];
+   for(const x of schedule.days[d])if(x.type==='FT'&&['WORK'].includes(x.status)&&['M1','M2'].includes(x.shift)){
+     const p=prev.find(y=>y.id===x.id);
+     if(p&&['WORK','N'].includes(p.status)&&['T1','T2'].includes(p.shift)){hard++;out.push({t:'err',m:`${workerName(x.w)}: transición Tarde → Mañana detectada entre ${fmt(mod(d-1,28))} y ${fmt(d)}.`})}
+   }
    if(d%7<5)for(let m=360;m<420;m+=30){const c=coverageAt(schedule.days[d],m);if(c<8){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: dotación ${c}; mínimo operativo 8 entre 06:00–07:00.`});break}}
    for(let m=420;m<=1320;m+=30){const c=coverageAt(schedule.days[d],m);if(c<9){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: dotación ${c}; mínimo crítico 9.`});break}}
  }
@@ -364,7 +385,7 @@ function validations(schedule){
    for(let z=0;z<3;z++)if(fullStart+z<28&&!schedule.nights[fullStart+z]?.has(w)){hard++;out.push({t:'err',m:`${workerName(w)}: bloque nocturno incompleto desde ${fmt(d)}.`});break}
    if(fullStart+3<28){const x=schedule.days[fullStart+3].find(y=>y.id==='A'+w);if(x&&x.status==='WORK'&&!['T1','T2'].includes(x.shift)){hard++;out.push({t:'err',m:`${workerName(w)}: después de NNN no quedó en turno de tarde el ${fmt(fullStart+3)}.`})}}
  }
- if(!hard)out.push({t:'ok',m:'Motor equilibrado: rotación semanal M1 → M2 → T1 → T2 con B1/B2 como bisagra, L antes de NNN, 2 N diarios y cobertura crítica cumplida.'});
+ if(!hard)out.push({t:'ok',m:'Motor equilibrado: rotación semanal con B1/B2 como bisagra, sin transiciones Tarde → Mañana, L antes de NNN, 2 N diarios y cobertura crítica cumplida.'});
  return out;
 }
 function cell(x){let code=x.status,cls=code;if(code==='WORK'){code=x.shift||'—';cls=x.shift||'L'}else if(code==='PTFIX'){code=x.shift;cls='PTFIX'}let sub='';if(x.shift&&['WORK','N','PTFIX'].includes(x.status))sub=`${SHIFT[x.shift][0]}–${time(endMinute(x))}${x.reduction?` · -${x.reduction}m`:''}${x.anchor==='POST_N'?' · post NNN':''}`;if(code==='VAC')sub='vacaciones';if(code==='LM')sub='licencia médica';if(code==='COMP')sub='compensatorio';return `<td><span class="cell ${cls}">${code}<span class="small">${sub}</span></span></td>`}
