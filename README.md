@@ -1,10 +1,10 @@
-# Turnos EDS v1.9
+# Turnos EDS v2.0
 
 Versión basada en la v1.7 del planificador maestro de turnos EDS.
 
 ## Objetivo de esta versión
 
-La v1.9 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
+La v2.0 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
 
 ## Familias de turno FT
 
@@ -90,11 +90,22 @@ Si las tablas compartidas aún no existen, ejecutar una sola vez:
 
 ## Cambio principal respecto de v1.7
 
-La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v1.9 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
+La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2.0 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
 
 
-## Ajustes v1.9
+## Ajustes v2.0
 
 - Se reorganiza la distribución por grupos separados: Mañana (M1/M2), Bisagra (B1/B2) y Tarde (T1/T2).
 - Para volver desde el grupo Tarde al grupo Mañana debe existir un día Libre intermedio.
 - Se mantiene el patrón L → N → N → N → Tarde y los turnos bisagra B1/B2.
+
+
+## Optimización v2.0
+
+- B2 cambia a 12:00–21:00.
+- T1 cambia a 14:00–23:00.
+- T2 se mantiene 15:00–24:00.
+- El motor calcula automáticamente la mezcla M1/M2/B1/B2/T1/T2 según la dotación disponible y los PT fijos.
+- Prioridad 1: al menos 9 atendedores entre 07:00 y 23:00.
+- Prioridad 2: evitar más de 15 atendedores simultáneos; 14 es el objetivo preferente cuando la estructura lo permite.
+- La redistribución conserva B1/B2 y las reglas de rotación y descanso.
