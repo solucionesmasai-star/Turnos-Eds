@@ -1,2 +1,7 @@
 .DS_Store
-*.log
+Thumbs.db
+.vercel
+.env
+.env.local
+.env.*.local
+node_modules/

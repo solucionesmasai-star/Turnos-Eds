@@ -1,99 +1,93 @@
-# Turnos EDS v1.5 — espacio compartido global
+# Turnos EDS v1.8
 
-Esta versión cambia la persistencia para que **todos vean la misma programación**, sin importar el navegador, dispositivo o usuario.
+Versión basada en la v1.7 del planificador maestro de turnos EDS.
 
-## Comportamiento
+## Objetivo de esta versión
 
-- Invitado sin login: puede ver la programación compartida de `workspace = principal`.
-- Usuario autenticado: ve la misma programación y puede editarla.
-- Todos los cambios hechos por un usuario autenticado se guardan en la misma fila global y luego se muestran a cualquier visitante.
-- La aplicación recarga automáticamente el estado compartido al abrir, al volver a enfocar la pestaña y cada 30 segundos.
-- `localStorage` queda solo como respaldo local, no como fuente oficial cuando existe información remota.
+La v1.8 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
 
-## Configuración Supabase
+## Familias de turno FT
 
-El proyecto ya está configurado en `config.js` con la URL y publishable key indicadas.
+- N: 00:00–09:00
+- M1: 06:00–15:00
+- M2: 07:00–16:00
+- B1: 09:00–18:00
+- B2: 11:00–20:00
+- T1: 13:00–22:00
+- T2: 15:00–24:00
 
-### Paso obligatorio
+M3 fue eliminado. Su capacidad se redistribuye entre M2, B1 y B2 según la plantilla diaria.
 
-Ejecuta una sola vez en Supabase > SQL Editor:
+## Rotación semanal equitativa
+
+Cada FT tiene una familia preferente que avanza semanalmente:
+
+Mañana → Bisagra → Tarde → Mañana
+
+Los puntos de partida se escalonan entre los trabajadores para evitar que todo el equipo cambie de familia el mismo lunes.
+
+El motor no se limita a una asignación fija: además considera la carga acumulada visible de cada trabajador dentro del ciclo para compensar automáticamente diferencias entre Mañana, Bisagra y Tarde.
+
+Los bloques N continúan funcionando de manera independiente a esta rotación.
+
+## Turnos bisagra
+
+B1 y B2 se mantienen expresamente en el motor.
+
+Su función es:
+
+- suavizar los cambios de turno;
+- mantener continuidad de atención durante los relevos;
+- cubrir la transición entre mañana y tarde;
+- evitar que el cliente perciba cortes bruscos en la dotación;
+- absorber capacidad residual antes de sobrecargar los extremos M1/T2.
+
+## Reglas duras preservadas
+
+- exactamente 2 N por día;
+- patrón Libre → N → N → N → Tarde;
+- antes de iniciar un bloque N debe existir Libre según el patrón maestro;
+- después de T1 o T2 no se permite M1 ni M2 al día siguiente;
+- máximo 6 días continuos;
+- máximo 2 libres por semana;
+- 42 h semanales base según el patrón vigente;
+- PT mantienen su programación fija;
+- vacaciones manuales;
+- licencias médicas por rango de fechas;
+- compensatorios;
+- lectura pública y edición autenticada mediante Supabase;
+- cobertura objetivo: mínimo 8 entre 06:00–07:00 L-V y mínimo 9 desde las 07:00 en franja crítica.
+
+## Part-time
+
+No se modificó la estructura PT existente:
+
+- PT1, PT2, PT3, PT4 y PT5: viernes, sábado y domingo;
+- PT6, PT7 y PT8: sábado y domingo;
+- PT no realizan turno N.
+
+## Supabase
+
+La aplicación sigue utilizando el workspace compartido `principal`.
+
+- Invitados: lectura.
+- Usuarios autenticados: lectura y escritura.
+- `localStorage`: respaldo local.
+- La `service_role` no debe usarse en frontend.
+
+La configuración pública se encuentra en `config.js`.
+
+Si las tablas compartidas aún no existen, ejecutar una sola vez:
 
 `supabase/shared_workspace.sql`
 
-Ese script crea dos tablas nuevas, sin tocar las tablas anteriores:
-
-- `turnos_eds_shared_state`
-- `turnos_eds_shared_versions`
-
-La primera mantiene una sola fila global para `workspace = principal`.
-
-## Seguridad
-
-- `anon`: SELECT solamente.
-- `authenticated`: SELECT + INSERT + UPDATE + DELETE.
-- RLS activo.
-- Invitados no pueden modificar la programación.
-- La `service_role` no se usa en frontend.
-
-## Primera publicación
-
-Si todavía no existe la fila `principal`, un invitado verá la malla base local. El primer usuario autenticado que haga un guardado creará la fila global. Desde ese momento todos los visitantes cargarán esa misma programación.
-
-## Verificar guardado
-
-Después de guardar desde la app, ejecutar:
-
-```sql
-select
-  workspace,
-  updated_at,
-  updated_by,
-  state -> 'workers' as workers
-from public.turnos_eds_shared_state
-where workspace = 'principal';
-```
-
-Debe retornar exactamente una fila.
-
 ## Archivos
 
-- `index.html`: aplicación.
-- `config.js`: configuración pública Supabase.
-- `supabase/shared_workspace.sql`: tablas, grants y RLS para el espacio compartido.
+- `index.html`: aplicación completa.
+- `config.js`: configuración pública de Supabase.
+- `.gitignore`: archivos que no deben subirse.
+- `supabase/shared_workspace.sql`: creación idempotente de las tablas compartidas y políticas RLS.
 
+## Cambio principal respecto de v1.7
 
-## v1.5
-- Licencias médicas se asignan por fechas calendario reales (desde/hasta) y se guardan como rangos persistentes.
-- La malla descuenta automáticamente LM, VAC y COMP de la dotación.
-- Nuevo panel **Dotación por hora**: 24 horas x 7 días de la semana visible, con alertas visuales sobre el piso crítico.
-- Se incluye `config.js` y `supabase/shared_workspace.sql` en el repositorio.
-
-
-## Cambios v1.5
-- La semana visualizada es estado local de interfaz y ya no se reinicia por polling/focus de Supabase.
-- Botón Reiniciar LM/VAC con opciones independientes o ambas.
-- Generar versión fuerza guardado inmediato y confirma visualmente la nueva versión.
-- Dotación por hora se mide a HH:05 para evitar doble conteo en relevos.
-
-
-## v1.5 – Dotación máxima 12
-
-- Se fija un máximo operativo de 12 atendedores efectivos por hora en franjas críticas.
-- El indicador descuenta colaciones de 30 minutos.
-- Las colaciones se escalonan automáticamente para reducir sobre-dotación sin bajar del mínimo crítico.
-- M1 se mantiene en 6; con los 2 N se aceptan 8 personas entre 06:00 y 07:00 de lunes a viernes.
-- Desde las 07:00 el objetivo es 9–12 atendedores efectivos.
-- La lectura horaria continúa realizándose a HH:05 para evitar doble conteo en relevos.
-
-## v1.7
-- Sobrecobertura >12 ya no es error: se muestra como advertencia informativa.
-- Refuerzo prioritario 08:00–11:00 moviendo capacidad desde T2 a M3/B1/T1 cuando la dotación diaria lo permite.
-- Las colaciones quedan bloqueadas entre 08:00 y 11:00 para no debilitar el peak de mañana.
-- Se mantiene M1 máximo 6, 2 N diarios, PT sin cambios y todas las reglas previas.
-- La redistribución conserva cobertura tardía mínima donde la dotación lo permite; en dotaciones muy bajas prima no romper las reglas duras.
-
-
-## Cambios v1.7
-- La aplicación ya no asigna ni descuenta colaciones; las administra presencialmente el Jefe de Servicio.
-- La sobrecobertura no genera alertas ni marcación especial en el indicador por hora.
-- El historial de versiones queda oculto por defecto y se abre desde un panel desplegable.
+La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v1.8 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
