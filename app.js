@@ -1,46 +1,548 @@
-const DAYS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-const WEEK_NAMES=['Semana 1','Semana 2','Semana 3','Semana 4'];
-const SHIFT_META={
- N:{label:'N',time:'00:00–09:00',cls:'shift-n'},M1:{label:'M1',time:'06:00–15:00',cls:'shift-m1'},M2:{label:'M2',time:'07:00–16:00',cls:'shift-m2'},M3:{label:'M3',time:'08:00–17:00',cls:'shift-m3'},B1:{label:'B1',time:'09:00–18:00',cls:'shift-b1'},B2:{label:'B2',time:'11:00–20:00',cls:'shift-b2'},T1:{label:'T1',time:'13:00–22:00',cls:'shift-t1'},T2:{label:'T2',time:'15:00–24:00',cls:'shift-t2'},L:{label:'Libre',time:'',cls:'shift-off'},VAC:{label:'VAC',time:'Vacaciones',cls:'shift-vac'},LM:{label:'LM',time:'Licencia médica',cls:'shift-lm'}
-};
-const TARGETS=[
- {N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M1:8,M2:2,B1:1,T2:10},{N:2,M2:8,M3:1,B1:2,T2:10},{N:2,M2:8,B1:2,T2:10}
-];
-const employees=Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`}));
-const nightPairs=Array.from({length:14},(_,i)=>[i*2+1,i*2+2]);
-const nightStarts=[0,2,4,6,8,10,12,14,16,18,20,22,24,26];
-let version=1, week=0, selected=new Set(employees.map(e=>e.id)), schedule=makeBaseSchedule(1);
 
-function seededSort(items,seed){return [...items].sort((a,b)=>pseudo(a.id,seed)-pseudo(b.id,seed));}
-function pseudo(id,seed){const x=Math.sin((id*97+seed*31)*12.9898)*43758.5453;return x-Math.floor(x);}
-function clone(o){return JSON.parse(JSON.stringify(o));}
-function makeBaseSchedule(ver){
- const s={}; employees.forEach(e=>s[e.id]=Array(28).fill(''));
- employees.forEach((e,idx)=>{for(let w=0;w<4;w++){const base=w*7,joint=((idx+w)%2===0);const off=joint?[(idx*2+w+5)%7,((idx*2+w+5)%7+1)%7]:[(idx+w*2+1)%7,(idx+w*2+4)%7];off.forEach(d=>s[e.id][base+d]='L');}});
- nightPairs.forEach((pair,p)=>{const start=nightStarts[p];pair.forEach(id=>{s[id][start]='N';s[id][start+1]='N';s[id][(start+2)%28]='L';});});
- for(let d=0;d<28;d++){
-  const dow=d%7,target={...TARGETS[dow]},active=employees.filter(e=>s[e.id][d]!=='L'&&s[e.id][d]!=='N'),ordered=seededSort(active,ver*100+d);const n=employees.filter(e=>s[e.id][d]==='N').length;target.N=Math.max(0,(target.N||0)-n);
-  const priority={M1:0,T2:1,M2:2,B1:3,M3:4,B2:5,T1:6},shifts=[];Object.entries(target).forEach(([code,count])=>{if(code!=='N')for(let i=0;i<count;i++)shifts.push(code);});shifts.sort((a,b)=>(priority[a]??9)-(priority[b]??9));
-  ordered.forEach((e,i)=>s[e.id][d]=shifts[i]||(dow<=4?'B1':'M2'));
+(()=>{
+const SUPER_WORK=[[1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0],[1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,1,0],[0,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0],[0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0],[0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1,0,1,1],[1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,0,1,1,1,0,1],[1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1],[1,1,1,0,1,1,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,0,1],[1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0],[1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0],[1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,0,1,1,1,1,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1],[1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,0,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1],[1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0],[1,0,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,0],[0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1],[1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1],[1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1],[1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,0,1,0,1,1,1,1,0,1],[1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1,0,1,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1],[1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,0,1,1,1,1,1,0,1,1,0,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1],[1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,0,1,1,0,1,1,1]];
+const SHIFT={N:['00:00','09:00'],M1:['06:00','15:00'],M2:['07:00','16:00'],B1:['09:00','18:00'],B2:['11:00','20:00'],T1:['13:00','22:00'],T2:['15:00','24:00']};
+const TEMPLATES={
+ "WD":{
+  "20":{"M1":6,"M2":2,"B1":1,"B2":1,"T1":1,"T2":7},
+  "21":{"M1":6,"M2":3,"B1":1,"B2":1,"T1":1,"T2":7},
+  "22":{"M1":6,"M2":3,"B1":2,"B2":1,"T1":1,"T2":7},
+  "23":{"M1":6,"M2":4,"B1":2,"B2":1,"T1":1,"T2":7},
+  "24":{"M1":6,"M2":4,"B1":2,"B2":1,"T1":1,"T2":8}
+ },
+ "FRI":{
+  "16":{"M1":6,"M2":1,"B1":1,"B2":1,"T1":1,"T2":4},
+  "17":{"M1":6,"M2":2,"B1":1,"B2":1,"T1":1,"T2":4},
+  "18":{"M1":6,"M2":2,"B1":2,"B2":1,"T1":1,"T2":4},
+  "19":{"M1":6,"M2":3,"B1":2,"B2":1,"T1":1,"T2":4},
+  "20":{"M1":6,"M2":3,"B1":2,"B2":1,"T1":1,"T2":5}
+ },
+ "SAT":{
+  "12":{"M1":0,"M2":3,"B1":1,"B2":1,"T1":1,"T2":4},
+  "13":{"M1":0,"M2":3,"B1":1,"B2":1,"T1":1,"T2":5},
+  "14":{"M1":0,"M2":3,"B1":2,"B2":1,"T1":1,"T2":5},
+  "15":{"M1":0,"M2":3,"B1":2,"B2":1,"T1":2,"T2":5},
+  "16":{"M1":0,"M2":4,"B1":2,"B2":1,"T1":2,"T2":5}
+ },
+ "SUN":{
+  "12":{"M1":0,"M2":3,"B1":1,"B2":1,"T1":1,"T2":4},
+  "13":{"M1":0,"M2":3,"B1":1,"B2":1,"T1":1,"T2":5},
+  "14":{"M1":0,"M2":3,"B1":2,"B2":1,"T1":1,"T2":5},
+  "15":{"M1":0,"M2":3,"B1":2,"B2":1,"T1":2,"T2":5}
  }
- return s;
 }
-function maxConsecutive(id){const arr=schedule[id].map(v=>!['L','VAC','LM',''].includes(v));let max=0,cur=0;for(let i=0;i<56;i++){if(arr[i%28]){cur++;max=Math.max(max,cur);}else cur=0;}return Math.min(max,28);}
-function stats(){const over=employees.filter(e=>maxConsecutive(e.id)>6).map(e=>e.id);const nights=employees.map(e=>schedule[e.id].filter(x=>x==='N').length);return{over,nightOk:nights.every(n=>n===2)};}
-function dayCoverage(day){const c={};Object.keys(SHIFT_META).forEach(k=>c[k]=0);employees.forEach(e=>{const v=schedule[e.id][day];c[v]=(c[v]||0)+1;});return c;}
-function render(){renderSummary();renderTabs();renderTable();renderCoverage();renderRules();renderAlert();}
-function renderSummary(){const st=stats();document.getElementById('summary').innerHTML=[['👥','Dotación FT','28'],['🌙','Noches / ciclo','2 por FT'],['📅','Versión actual',`v${version}`],['🛡️','Máx. 6 días',st.over.length?`${st.over.length} alertas`:'Validado']].map((m,i)=>`<div class="metric ${i===3&&st.over.length?'warn':''}"><span class="metric-icon">${m[0]}</span><div><span>${m[1]}</span><strong>${m[2]}</strong></div></div>`).join('');}
-function renderTabs(){document.getElementById('weekTabs').innerHTML=WEEK_NAMES.map((w,i)=>`<button data-week="${i}" class="${week===i?'active':''}">${w}</button>`).join('');document.querySelectorAll('[data-week]').forEach(b=>b.onclick=()=>{week=Number(b.dataset.week);render();});}
-function renderTable(){document.getElementById('calendarHead').innerHTML=`<tr><th class="sticky-col">Atendedor</th>${DAYS.map((d,i)=>`<th>${d}<small>Día ${week*7+i+1}</small></th>`).join('')}</tr>`;document.getElementById('calendarBody').innerHTML=employees.map(e=>`<tr><td class="sticky-col person"><input type="checkbox" data-emp="${e.id}" ${selected.has(e.id)?'checked':''}><span>${e.name}</span></td>${Array.from({length:7},(_,i)=>{const code=schedule[e.id][week*7+i]||'L',m=SHIFT_META[code]||SHIFT_META.L;return `<td><div class="shift ${m.cls}"><b>${m.label}</b><small>${m.time}</small></div></td>`;}).join('')}</tr>`).join('');document.querySelectorAll('[data-emp]').forEach(c=>c.onchange=()=>{const id=Number(c.dataset.emp);c.checked?selected.add(id):selected.delete(id);});}
-function renderCoverage(){document.getElementById('coverage').innerHTML=DAYS.map((d,i)=>{const c=dayCoverage(week*7+i);return `<div class="coverage-card"><h3>${d}</h3><div class="chips">${['N','M1','M2','M3','B1','B2','T1','T2'].map(s=>`<span>${s} <b>${c[s]||0}</b></span>`).join('')}</div></div>`;}).join('');}
-function renderRules(){const rules=['Ciclo continuo de 28 días; no se reinicia por cambio de mes.','Máximo 6 días continuos por FT.','Todos los FT realizan un bloque de 2 noches consecutivas.','PT no realizan noche y esta versión no modifica sus horarios.','M1 no se utiliza sábado ni domingo.','Primer ingreso diurno 06:00; ningún turno cruza medianoche.','Semanas con libres juntos: salida 30 min antes en un día.','Semanas con libres separados: dos salidas de 15 min antes.','23:30–00:00 puede operar con dotación inferior a 9.','1 FT de vacaciones se considera restricción estructural.','Licencias usan reasignación mínima hacia flotantes.'];document.getElementById('rules').innerHTML=rules.map(r=>`<div class="rule">✓ <span>${r}</span></div>`).join('');}
-function renderAlert(){const st=stats();document.getElementById('alert').innerHTML=st.over.length?`<div class="alert">⚠ Atendedores sobre 6 días continuos: ${st.over.join(', ')}</div>`:'';}
-function openSelect(){showModal(`<div class="modal-head"><h2>Seleccionar atendedores</h2><button data-close>✕</button></div><p>Solo los seleccionados se regenerarán al crear una nueva versión.</p><button id="toggleAll" class="btn secondary wide">${selected.size===28?'Desmarcar todos':'Seleccionar todos'}</button><div class="selector-grid">${employees.map(e=>`<label><input type="checkbox" data-sel="${e.id}" ${selected.has(e.id)?'checked':''}>${e.name}</label>`).join('')}</div><div class="modal-actions"><button class="btn primary" data-close>Aplicar selección (${selected.size})</button></div>`);document.getElementById('toggleAll').onclick=()=>{selected=selected.size===28?new Set():new Set(employees.map(e=>e.id));openSelect();};document.querySelectorAll('[data-sel]').forEach(c=>c.onchange=()=>{const id=Number(c.dataset.sel);c.checked?selected.add(id):selected.delete(id);});bindClose();}
-function openLicense(){showModal(`<div class="modal-head"><h2>Registrar licencia médica</h2><button data-close>✕</button></div><label class="field">Atendedor<select id="licenseEmployee">${employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></label><div class="field"><span>Días del ciclo</span><div class="day-picker">${Array.from({length:28},(_,d)=>`<label><input type="checkbox" data-lday="${d}" ${d===week*7?'checked':''}><span>${d+1}</span></label>`).join('')}</div></div><div class="modal-actions"><button class="btn secondary" data-close>Cancelar</button><button id="applyLicense" class="btn danger">Aplicar y reasignar</button></div>`);document.getElementById('applyLicense').onclick=applyLicense;bindClose();}
-function applyLicense(){const id=Number(document.getElementById('licenseEmployee').value),days=[...document.querySelectorAll('[data-lday]:checked')].map(x=>Number(x.dataset.lday));if(!days.length)return;const next=clone(schedule);days.forEach(d=>next[id][d]='LM');days.forEach(d=>{const original=schedule[id][d];if(['L','N','','LM','VAC'].includes(original))return;const candidates=employees.filter(e=>e.id!==id&&!['L','N','LM','VAC'].includes(next[e.id][d]));const preferred=candidates.find(e=>['B1','B2','M2','M3','T1'].includes(next[e.id][d]));if(preferred)next[preferred.id][d]=original;});schedule=next;closeModal();setNotice(`Licencia aplicada a Atendedor ${id}; se ejecutó reasignación mínima cuando fue posible.`);render();}
-function showModal(html){document.getElementById('modalRoot').innerHTML=`<div class="modal-backdrop"><div class="modal">${html}</div></div>`;}
-function bindClose(){document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);}
-function closeModal(){document.getElementById('modalRoot').innerHTML='';}
-function setNotice(t){document.getElementById('notice').textContent=t;}
-document.getElementById('selectBtn').onclick=openSelect;document.getElementById('licenseBtn').onclick=openLicense;document.getElementById('generateBtn').onclick=()=>{const nextVer=version+1,fresh=makeBaseSchedule(nextVer),merged=clone(schedule);employees.forEach(e=>{if(selected.has(e.id))merged[e.id]=fresh[e.id];});schedule=merged;version=nextVer;setNotice(`Versión ${version} generada para ${selected.size} atendedores seleccionados.`);render();};
-setNotice('Versión 1 generada con patrón maestro de 4 semanas.');render();
+const DOW=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const PT=[
+ {id:'PT1',days:[4,5,6],shift:'M2'},{id:'PT2',days:[4,5,6],shift:'M2'},{id:'PT3',days:[4,5,6],shift:'B1'},{id:'PT4',days:[4,5,6],shift:'T2'},{id:'PT5',days:[4,5,6],shift:'T2'},
+ {id:'PT6',days:[5,6],shift:'M2'},{id:'PT7',days:[5,6],shift:'M2'},{id:'PT8',days:[5,6],shift:'B1'}
+];
+const ANCHOR='2026-10-05';
+let state={version:1,week:0,start:'2026-10-05',selected:Array.from({length:28},(_,i)=>i+1),overrides:{},medicalLeaves:[],history:[],vacation:null,seed:0,workers:Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i})),ptNames:Object.fromEntries(PT.map(p=>[p.id,p.id]))};
+try{const saved=JSON.parse(localStorage.getItem('eds-turnos-v11')||localStorage.getItem('eds-turnos-v10')||localStorage.getItem('eds-turnos-v09')||localStorage.getItem('eds-turnos-v08')||'null');if(saved)state={...state,...saved}}catch(e){}
+if(!Array.isArray(state.workers)||!state.workers.length)state.workers=Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i}));
+if(!state.ptNames)state.ptNames=Object.fromEntries(PT.map(p=>[p.id,p.id]));
+if(!Array.isArray(state.medicalLeaves))state.medicalLeaves=[];
+let ui={week:Number.isInteger(state.week)?Math.max(0,Math.min(3,state.week)):0};try{const sw=Number(sessionStorage.getItem('eds-ui-week'));if(Number.isInteger(sw)&&sw>=0&&sw<=3)ui.week=sw}catch{}
+for(const w of state.workers){if(!w.name)w.name=`Atendedor ${w.id}`;if(w.pattern==null)w.pattern=(w.id-1)%28;}
+state.selected=state.selected.filter(id=>state.workers.some(w=>w.id===id));
+const cloud={client:null,user:null,ready:false,syncing:false,lastError:'',lastSyncedAt:'',workspace:'principal',saveQueued:false,snapshotQueued:false,remoteLoaded:false,pollTimer:null};
+const cfg=window.SUPABASE_CONFIG||{};
+if(window.supabase&&cfg.url&&cfg.publishableKey){
+  cloud.client=window.supabase.createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  cloud.ready=true;
+}
+let cloudTimer=null,debounceSnapshot=false;
+function cloneState(){return JSON.parse(JSON.stringify(state));}
+function localSave(){state.updatedAt=new Date().toISOString();localStorage.setItem('eds-turnos-v11',JSON.stringify(state));}
+async function cloudSave(snapshot=false){
+  if(!cloud.client||!cloud.user)return false;
+  cloud.saveQueued=true;cloud.snapshotQueued=cloud.snapshotQueued||snapshot;
+  if(cloud.syncing)return true;
+  cloud.syncing=true;updateCloudStatus('guardando');
+  let ok=true;
+  try{
+    while(cloud.saveQueued){
+      const snap=cloud.snapshotQueued;
+      cloud.saveQueued=false;cloud.snapshotQueued=false;
+      const payload=cloneState();
+      const stamp=payload.updatedAt||new Date().toISOString();
+      const row={workspace:cloud.workspace,state:payload,updated_at:stamp,updated_by:cloud.user.id};
+      const {error}=await cloud.client.from('turnos_eds_shared_state').upsert(row,{onConflict:'workspace'});
+      if(error)throw error;
+      if(snap){
+        const {error:ve}=await cloud.client.from('turnos_eds_shared_versions').insert({workspace:cloud.workspace,version:payload.version,state:payload,note:payload.history?.at(-1)?.note||'Versión guardada',created_by:cloud.user.id});
+        if(ve)throw ve;
+      }
+      cloud.lastSyncedAt=stamp;cloud.remoteLoaded=true;
+    }
+    cloud.lastError='';updateCloudStatus('sincronizado');
+  }catch(e){
+    ok=false;cloud.lastError=e.message||String(e);updateCloudStatus('error');
+    cloud.saveQueued=true;cloud.snapshotQueued=cloud.snapshotQueued||snapshot;
+  }finally{cloud.syncing=false;}
+  if(cloud.saveQueued&&ok)setTimeout(()=>cloudSave(false),50);
+  return ok;
+}
+function save(snapshot=false,immediate=false){
+  localSave();
+  debounceSnapshot=debounceSnapshot||snapshot;
+  clearTimeout(cloudTimer);
+  if(!cloud.user){updateCloudStatus();return Promise.resolve(false);}
+  if(immediate){const snap=debounceSnapshot;debounceSnapshot=false;return cloudSave(snap);}
+  cloudTimer=setTimeout(()=>{const snap=debounceSnapshot;debounceSnapshot=false;cloudSave(snap)},300);
+  return Promise.resolve(true);
+}
+function setEditingState(){
+  const editable=!!cloud.user;
+  ['addWorkerBtn','workersBtn','vacBtn','lmBtn','resetAbsBtn','compBtn','genBtn','cycleStart','importFile'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!editable});
+  const msg=document.getElementById('editModeHint');
+  if(msg)msg.textContent=editable?'Edición habilitada · los cambios se guardan en el espacio compartido.':'Modo invitado · visualización del espacio compartido. Inicia sesión para editar.';
+}
+function updateCloudStatus(mode){
+  const el=document.getElementById('cloudStatus');if(!el)return;
+  if(!cloud.ready){el.textContent='Supabase: sin configurar';return;}
+  if(mode==='error'){el.textContent='Supabase: error';el.title=cloud.lastError||'';return;}
+  if(cloud.user){
+    const label=mode==='guardando'?'guardando…':mode==='sincronizado'?'sincronizado':'conectado';
+    el.textContent=`Supabase: ${label}`;
+  }else{
+    el.textContent=cloud.remoteLoaded?'Supabase: público':'Supabase: cargando…';
+  }
+  el.title=cloud.lastError||(cloud.lastSyncedAt?`Última actualización: ${new Date(cloud.lastSyncedAt).toLocaleString('es-CL')}`:(cloud.user?.email||'Lectura pública'));
+  setEditingState();
+}
+async function cloudLoadShared(){
+  if(!cloud.client)return;
+  if(cloud.syncing)return;
+  const {data,error}=await cloud.client.from('turnos_eds_shared_state').select('state,updated_at,updated_by').eq('workspace',cloud.workspace).maybeSingle();
+  if(error){cloud.lastError=error.message;updateCloudStatus('error');return;}
+  if(data?.state){
+    state={...state,...data.state};
+    localStorage.setItem('eds-turnos-v11',JSON.stringify(state));
+    cloud.lastSyncedAt=data.updated_at||data.state.updatedAt||new Date().toISOString();
+    cloud.remoteLoaded=true;cloud.lastError='';updateCloudStatus(cloud.user?'sincronizado':undefined);render();
+  }else if(cloud.user){
+    localSave();await cloudSave(false);render();
+  }else{
+    cloud.remoteLoaded=false;updateCloudStatus();render();
+  }
+}
+async function initCloud(){
+  if(!cloud.client){updateCloudStatus();render();return;}
+  const {data:{session}}=await cloud.client.auth.getSession();
+  cloud.user=session?.user||null;
+  await cloudLoadShared();
+  cloud.client.auth.onAuthStateChange(async(_event,session)=>{cloud.user=session?.user||null;await cloudLoadShared();});
+  if(!cloud.pollTimer)cloud.pollTimer=setInterval(()=>{if(!cloud.syncing)cloudLoadShared()},30000);
+  window.addEventListener('focus',()=>{if(!cloud.syncing)cloudLoadShared()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!cloud.syncing)cloudLoadShared()});
+}
+
+const workerIds=()=>state.workers.map(w=>w.id);
+const workerById=id=>state.workers.find(w=>w.id===id);
+const workerName=id=>workerById(id)?.name||`Atendedor ${id}`;
+const ftCount=()=>state.workers.length;
+function basePattern(w){const x=workerById(w);return SUPER_WORK[(x?.pattern??((w-1)%28))%28]}
+function nextWorkerId(){return state.workers.length?Math.max(...workerIds())+1:1}
+function choosePatternForNewWorker(){
+  const used=Array(28).fill(0);for(const w of state.workers)used[(w.pattern??0)%28]++;
+  let best=0;for(let i=1;i<28;i++)if(used[i]<used[best])best=i;return best;
+}
+const key=(id,d)=>id+'|'+d;
+const mod=(a,n)=>((a%n)+n)%n;
+const mins=t=>{if(t==='24:00')return 1440;const [h,m]=t.split(':').map(Number);return h*60+m};
+const time=m=>{if(m>=1440)return'24:00';return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+const parseDate=s=>new Date(s+'T12:00:00');
+const dateFor=d=>{const x=parseDate(state.start);x.setDate(x.getDate()+d);return x};
+const isoFor=d=>{const x=dateFor(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+const fmt=d=>new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit'}).format(dateFor(d));
+const diffDays=(a,b)=>Math.round((parseDate(a)-parseDate(b))/86400000);
+const absDay=d=>diffDays(state.start,ANCHOR)+d;
+const superDay=d=>mod(absDay(d),84);
+function pairForDay(d){const p=mod(Math.floor(absDay(d)/3),14);return new Set([p*2+1,p*2+2])}
+function scheduledNight(w,d){return w<=28&&pairForDay(d).has(w)}
+function afterNightBlock(w,d){return scheduledNight(w,d-1)&&!scheduledNight(w,d)}
+function beforeNightBlock(w,d){return !scheduledNight(w,d)&&scheduledNight(w,d+1)}
+function workingBase(w,d){return !!basePattern(w)?.[superDay(d)]}
+function vacationDay(w,d){return !!state.vacation&&state.vacation.worker===w&&d>=state.vacation.from&&d<=state.vacation.to}
+function medicalLeaveDay(w,d){const day=isoFor(d);return state.medicalLeaves.some(x=>x.worker===w&&x.from<=day&&x.to>=day)}
+function overrideCode(w,d){return state.overrides[key('A'+w,d)]?.code||null}
+function unavailable(w,d){const o=overrideCode(w,d);return vacationDay(w,d)||medicalLeaveDay(w,d)||o==='LM'||o==='COMP'}
+
+function reductionMap(){
+ const rd=Object.fromEntries(workerIds().map(w=>[w,{}]));
+ for(const w of workerIds())for(let k=0;k<4;k++){
+   const offs=[],works=[];for(let j=0;j<7;j++)(workingBase(w,k*7+j)?works:offs).push(j);
+   if(offs.length!==2)continue;
+   if(offs[1]-offs[0]===1){
+      const prev=works.filter(x=>x<offs[0]);const j=prev.length?Math.max(...prev):Math.max(...works);rd[w][k*7+j]=30;
+   }else{
+      const used=[];
+      for(const o of offs){let p=o-1;while(p>=0&&offs.includes(p))p--;if(p>=0&&!used.includes(p)){used.push(p);rd[w][k*7+p]=15}}
+      while(used.length<2){for(const j of [...works].reverse())if(!used.includes(j)){used.push(j);rd[w][k*7+j]=15;break}}
+   }
+ }
+ return rd;
+}
+function dayCat(d){const x=d%7;return x<=3?'WD':x===4?'FRI':x===5?'SAT':'SUN'}
+function templateFor(cat,n){const map=TEMPLATES[cat],keys=Object.keys(map).map(Number).sort((a,b)=>a-b);if(map[n])return {...map[n]};const smaller=keys.filter(k=>k<=n).pop();if(smaller!=null){const t={...map[smaller]},extra=n-smaller;t.B1=(t.B1||0)+extra;return t}const k=keys[0],t={...map[k]};let need=k-n;for(const sh of ['B1','B2','M2','M1','T2']){const take=Math.min(need,t[sh]||0);t[sh]-=take;need-=take;if(!need)break}return t}
+function sortWorkers(arr,d){return [...arr].sort((a,b)=>{const sa=state.selected.includes(a)?((a+d*3+state.seed*5)%Math.max(1,ftCount())):a+100;const sb=state.selected.includes(b)?((b+d*3+state.seed*5)%Math.max(1,ftCount())):b+100;return sa-sb})}
+
+function buildNightSets(){
+ const nights=Array.from({length:28},(_,d)=>new Set([...pairForDay(d)]));
+ const counts=Object.fromEntries(workerIds().map(w=>[w,0]));
+ for(let d=0;d<28;d++)for(const w of nights[d])if(counts[w]!=null)counts[w]++;
+ // Contingencias: si VAC/LM/COMP afecta un N, mantener 2 N por cobertura.
+ for(let d=0;d<28;d++){
+   for(const w of [...nights[d]])if(unavailable(w,d)||!workingBase(w,d)){nights[d].delete(w);if(counts[w]!=null)counts[w]--}
+   while(nights[d].size<2){
+     const candidates=[];
+     for(const w of workerIds()){
+       if(nights[d].has(w)||unavailable(w,d)||!workingBase(w,d))continue;
+       const prevFree=!workingBase(w,d-1),postT=workingBase(w,d+1);
+       const score=(prevFree?0:100)+(postT?0:20)+(counts[w]||0)*10+(state.selected.includes(w)?0:50)+mod(w+d+state.seed,Math.max(1,ftCount()))/100;
+       candidates.push([score,w]);
+     }
+     candidates.sort((a,b)=>a[0]-b[0]);if(!candidates.length)break;
+     const w=candidates[0][1];nights[d].add(w);counts[w]=(counts[w]||0)+1;
+   }
+ }
+ return {nights,counts};
+}
+
+const FAMILY_ORDER=['M','B','T'];
+function carriesTardeDebt(meta){return !!meta?.needsFreeBeforeMorning}
+function updateTardeDebt(prevDebt,entry){
+ if(!entry) return !!prevDebt;
+ if(['L','VAC','LM','COMP'].includes(entry.status)) return false;
+ const fam=shiftFamily(entry.shift);
+ if(fam==='T') return true;
+ if(fam==='M') return false;
+ return !!prevDebt;
+}
+function shiftFamily(sh){return sh?.startsWith('M')?'M':sh?.startsWith('B')?'B':sh?.startsWith('T')?'T':sh==='N'?'N':null}
+function preferredFamily(w,d){
+ const absWeek=Math.floor(absDay(d)/7);
+ return FAMILY_ORDER[mod((w-1)+absWeek,3)];
+}
+function familyDistance(pref,target){
+ if(pref===target)return 0;
+ const a=FAMILY_ORDER.indexOf(pref),b=FAMILY_ORDER.indexOf(target);
+ if(a<0||b<0)return 2;
+ return mod(b-a,3)===1?1:2;
+}
+function prevShiftFor(prevMap,w){return prevMap?.get(w)?.entry?.shift||prevMap?.get(w)?.shift||null}
+function transitionAllowed(prevMap,w,nextShift){
+ const prevShift=prevShiftFor(prevMap,w);
+ if(['T1','T2'].includes(prevShift)&&['M1','M2'].includes(nextShift))return false;
+ if(['M1','M2'].includes(nextShift)&&carriesTardeDebt(prevMap?.get(w)))return false;
+ return true;
+}
+function candidateScore(w,sh,d,equity,prevMap){
+ const fam=shiftFamily(sh),pref=preferredFamily(w,d);
+ if(!transitionAllowed(prevMap,w,sh))return 1e9;
+ const famLoad=equity?.[w]?.[fam]||0,shiftLoad=equity?.[w]?.[sh]||0;
+ return familyDistance(pref,fam)*100 + famLoad*12 + shiftLoad*3 + mod(w+d+state.seed,ftCount()+7)/100;
+}
+function pickForShift(remaining,sh,count,d,equity,prevMap,forced=[]){
+ const selected=[];
+ for(const w of forced){if(remaining.includes(w)&&selected.length<count&&transitionAllowed(prevMap,w,sh))selected.push(w)}
+ const pool=remaining.filter(w=>!selected.includes(w)).sort((a,b)=>candidateScore(a,sh,d,equity,prevMap)-candidateScore(b,sh,d,equity,prevMap));
+ for(const w of pool){if(selected.length>=count)break;if(candidateScore(w,sh,d,equity,prevMap)>=1e9)continue;selected.push(w)}
+ return selected;
+}
+function addEquity(equity,w,sh){
+ const fam=shiftFamily(sh);if(!equity[w])equity[w]={M:0,B:0,T:0,N:0,M1:0,M2:0,B1:0,B2:0,T1:0,T2:0};
+ if(fam)equity[w][fam]=(equity[w][fam]||0)+1;
+ equity[w][sh]=(equity[w][sh]||0)+1;
+}
+
+function allocateDay(d,nights,reds,equity,prevMap){
+ const entries=[],active=[];
+ for(const w of workerIds()){
+  const ov=overrideCode(w,d);
+  if(vacationDay(w,d)){entries.push({id:'A'+w,type:'FT',w,status:'VAC',shift:null,reduction:0});continue}
+  if(medicalLeaveDay(w,d)){entries.push({id:'A'+w,type:'FT',w,status:'LM',shift:null,reduction:0});continue}
+  if(ov==='LM'||ov==='COMP'){entries.push({id:'A'+w,type:'FT',w,status:ov,shift:null,reduction:0});continue}
+  if(!workingBase(w,d)){entries.push({id:'A'+w,type:'FT',w,status:'L',shift:null,reduction:0});continue}
+  active.push(w);
+ }
+ const nset=nights[d],nworkers=active.filter(w=>nset.has(w));
+ for(const w of nworkers){entries.push({id:'A'+w,type:'FT',w,status:'N',shift:'N',reduction:reds[w]?.[d]||0});addEquity(equity,w,'N')}
+ let remaining=active.filter(w=>!nset.has(w));
+ const counts=templateFor(dayCat(d),active.length);
+ const postN=remaining.filter(w=>afterNightBlock(w,d));
+ let take=pickForShift(remaining,'T2',counts.T2||0,d,equity,prevMap,postN);
+ for(const w of take){entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:'T2',reduction:reds[w]?.[d]||0,anchor:postN.includes(w)?'POST_N':null});addEquity(equity,w,'T2')}
+ remaining=remaining.filter(w=>!take.includes(w));
+ counts.T2=Math.max(0,(counts.T2||0)-take.length);
+ const postLeft=postN.filter(w=>remaining.includes(w));
+ take=pickForShift(remaining,'T1',Math.max(counts.T1||0,postLeft.length),d,equity,prevMap,postLeft);
+ for(const w of take){entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:'T1',reduction:reds[w]?.[d]||0,anchor:postLeft.includes(w)?'POST_N':null});addEquity(equity,w,'T1')}
+ remaining=remaining.filter(w=>!take.includes(w));
+ counts.T1=Math.max(0,(counts.T1||0)-take.length);
+ for(const sh of ['M1','M2','B1','B2','T1']){
+  const c=counts[sh]||0;if(!c)continue;
+  const chosen=pickForShift(remaining,sh,c,d,equity,prevMap);
+  for(const w of chosen){entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:sh,reduction:reds[w]?.[d]||0});addEquity(equity,w,sh)}
+  remaining=remaining.filter(w=>!chosen.includes(w));
+ }
+ while(remaining.length){
+  const w=remaining.shift();
+  const choices=['B1','B2','T1','T2','M2','M1'].filter(sh=>transitionAllowed(prevMap,w,sh));
+  choices.sort((a,b)=>candidateScore(w,a,d,equity,prevMap)-candidateScore(w,b,d,equity,prevMap));
+  const sh=choices[0]||'B1';entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:sh,reduction:reds[w]?.[d]||0});addEquity(equity,w,sh);
+ }
+ for(const p of PT)entries.push({id:p.id,type:'PT',status:p.days.includes(d%7)?'PTFIX':'L',shift:p.days.includes(d%7)?p.shift:null,reduction:0});
+ return entries;
+}
+function breakMinFor(d,m){if(d%7<5&&m>=360&&m<420)return 8;if(m>=420&&m<=1320)return 9;return 0}
+function activeWithoutBreak(x,m){return ['WORK','N','PTFIX'].includes(x.status)&&x.shift&&mins(SHIFT[x.shift][0])<=m&&endMinute(x)>m}
+function breakEligible(x,slot){
+ if(!x.shift||!['WORK','N','PTFIX'].includes(x.status)||x.breakStart!=null)return false;
+ // Ventana protegida de demanda: no programar colaciones entre 08:00 y 11:00.
+ if(slot>=480&&slot<660)return false;
+ const st=mins(SHIFT[x.shift][0]),en=endMinute(x);
+ // Colación dentro del turno, evitando primera/última parte del servicio.
+ return slot>=st+150 && slot+30<=en-60;
+}
+function assignBreaks(entries,d){
+ for(const x of entries)x.breakStart=null;
+ const cov=(m)=>entries.filter(x=>activeWithoutBreak(x,m)&&!(x.breakStart!=null&&m>=x.breakStart&&m<x.breakStart+30)).length;
+ const pref={B1:0,B2:1,M2:2,T1:3,T2:4,M1:5,N:6};
+ // Fase 1: reducir cualquier sobre-dotación >12 en muestras de 30 min.
+ for(let slot=420;slot<=1320;slot+=30){
+   const sample=slot+5;
+   while(cov(sample)>12){
+     const candidates=entries.filter(x=>breakEligible(x,slot)&&activeWithoutBreak(x,sample));
+     if(!candidates.length)break;
+     candidates.sort((a,b)=>(pref[a.shift]??8)-(pref[b.shift]??8)||(a.type==='PT'?1:0)-(b.type==='PT'?1:0));
+     candidates[0].breakStart=slot;
+   }
+ }
+ // Fase 2: asignar colación al resto, buscando la franja con mayor holgura y sin bajar mínimos.
+ for(const x of entries){
+   if(!x.shift||!['WORK','N','PTFIX'].includes(x.status)||x.breakStart!=null)continue;
+   const st=mins(SHIFT[x.shift][0]),en=endMinute(x),slots=[];
+   for(let slot=Math.ceil((st+150)/30)*30;slot+30<=en-60;slot+=30){
+     const sample=slot+5;if(!activeWithoutBreak(x,sample))continue;
+     const before=cov(sample),after=before-1,min=breakMinFor(d,sample);
+     if(after<min)continue;
+     // Preferir :30 para no concentrar la colación en el minuto de lectura horaria; después, mayor cobertura.
+     const halfPref=slot%60===30?0:1,mid=Math.abs((slot+15)-((st+en)/2));
+     slots.push([halfPref, -before, mid, slot]);
+   }
+   if(slots.length){slots.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);x.breakStart=slots[0][3]}
+ }
+ return entries;
+}
+function buildSchedule(){
+ const reds=reductionMap(),nm=buildNightSets(),equity=Object.fromEntries(workerIds().map(w=>[w,{M:0,B:0,T:0,N:0,M1:0,M2:0,B1:0,B2:0,T1:0,T2:0}])),days=[];
+ let prevMap=new Map();
+ for(let d=0;d<28;d++){
+  const day=allocateDay(d,nm.nights,reds,equity,prevMap);
+  days.push(day);
+  const nextMap=new Map();
+  for(const x of day.filter(x=>x.type==='FT')){
+    const prevMeta=prevMap.get(x.w);
+    nextMap.set(x.w,{entry:x,needsFreeBeforeMorning:updateTardeDebt(prevMeta?.needsFreeBeforeMorning,x)});
+  }
+  prevMap=nextMap;
+ }
+ return {days,nightCounts:nm.counts,nights:nm.nights,reds,equity};
+}
+function endMinute(x){if(!x.shift)return null;return mins(SHIFT[x.shift][1])-(x.reduction||0)}
+function coverageAt(day,m){return day.filter(x=>activeWithoutBreak(x,m)).length}
+function coverageMetric(day,d){const start=d%7>=5?420:360;let worst=99,worstAt='',peak=0,peakAt='';for(let m=start;m<=1320;m+=30){const n=coverageAt(day,m);if(n<worst){worst=n;worstAt=time(m)}if(n>peak){peak=n;peakAt=time(m)}}return {worst,worstAt,peak,peakAt,at06:coverageAt(day,365),at07:coverageAt(day,425),at12:coverageAt(day,725),at18:coverageAt(day,1085),at22:coverageAt(day,1325),at2330:coverageAt(day,1415)}}
+function weeklyHours(w,k,reds){let m=0;for(let d=k*7;d<k*7+7;d++)if(workingBase(w,d))m+=510-(reds[w]?.[d]||0);return m/60}
+function maxRun(w){const pat=basePattern(w)||[];const arr=Array.from({length:84},(_,d)=>!!pat[d]),seq=arr.concat(arr.slice(0,7));let max=0,r=0;for(const v of seq){r=v?r+1:0;max=Math.max(max,r)}return max}
+
+function validations(schedule){
+ const out=[];let hard=0;
+ out.push({t:'ok',m:'Patrón maestro activo: Libre → N → N → N → Tarde, con superciclo de 12 semanas.'});
+ for(const w of workerIds()){
+   if(maxRun(w)>6)out.push({t:'err',m:`${workerName(w)}: ${maxRun(w)} días continuos.`});
+   for(let k=0;k<4;k++){
+     const libres=Array.from({length:7},(_,j)=>!workingBase(w,k*7+j)).filter(Boolean).length;
+     if(libres>2)out.push({t:'err',m:`${workerName(w)}, semana ${k+1}: ${libres} libres; máximo 2.`});
+     if(Math.abs(weeklyHours(w,k,schedule.reds)-42)>.001)out.push({t:'err',m:`${workerName(w)}, semana ${k+1}: ${weeklyHours(w,k,schedule.reds).toFixed(2)} h base.`});
+   }
+ }
+ for(let d=0;d<28;d++){
+   const n=schedule.days[d].filter(x=>x.status==='N').length;if(n!==2)out.push({t:'err',m:`${fmt(d)}: ${n} N activos; deben ser 2.`});
+   if(d%7<5){
+     for(let m=365;m<420;m+=30){const c=coverageAt(schedule.days[d],m);if(c<8){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<8 entre 06:00–07:00).`});break}}
+   }
+   const start=425;for(let m=start;m<=1325;m+=30){const c=coverageAt(schedule.days[d],m);if(c<9){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<9 en horario crítico desde 07:00).`});break}}
+ }
+ // Validación del patrón L-N-N-N-T para los N planificados base.
+ for(const w of workerIds())for(let d=0;d<28;d++){
+   if(scheduledNight(w,d)&&!scheduledNight(w,d-1)){
+     if(workingBase(w,d-1))out.push({t:'err',m:`A${w}: falta Libre antes del bloque N que inicia ${fmt(d)}.`});
+     for(let z=0;z<3;z++)if(d+z<28&&!scheduledNight(w,d+z))out.push({t:'err',m:`A${w}: bloque N incompleto desde ${fmt(d)}.`});
+     if(d+3<28){
+       const x=schedule.days[d+3].find(y=>y.id==='A'+w);
+       if(x&&['WORK'].includes(x.status)&&!['T1','T2'].includes(x.shift))out.push({t:'err',m:`A${w}: después de N-N-N debe ir a tarde el ${fmt(d+3)}.`});
+     }
+   }
+ }
+ // Transición dura por grupos: para volver desde Tarde a Mañana debe existir un Libre intermedio.
+ for(const w of workerIds()){
+  let deudaTarde=false;
+  for(let d=0;d<28;d++){
+    const x=schedule.days[d].find(y=>y.id==='A'+w); if(!x) continue;
+    if(['L','VAC','LM','COMP'].includes(x.status)){deudaTarde=false; continue;}
+    const fam=shiftFamily(x.shift);
+    if(fam==='M' && deudaTarde) out.push({t:'err',m:`${workerName(w)}: no puede pasar de grupo Tarde a grupo Mañana sin Libre previo (${fmt(d)}).`});
+    if(fam==='T') deudaTarde=true;
+    else if(fam==='M') deudaTarde=false;
+  }
+ }
+ out.unshift({t:'ok',m:'Rotación semanal automática activa por grupos separados: Mañana (M1/M2) → Bisagra (B1/B2) → Tarde (T1/T2), con retorno a Mañana solo tras Libre y B1/B2 preservados.'});
+ // Reemplazos de contingencia que no siguen el bloque natural.
+ for(let d=0;d<28;d++)for(const x of schedule.days[d])if(x.status==='N'&&x.type==='FT'&&!scheduledNight(x.w,d))out.push({t:'warn',m:`${fmt(d)}: A${x.w} cubre N por contingencia fuera de su bloque N-N-N.`});
+ if(!hard)out.unshift({t:'ok',m:'Cobertura mínima validada: 8 entre 06:00–07:00 L-V y al menos 9 atendedores desde las 07:00 en horario crítico.'});
+ out.unshift({t:'ok',m:'Continuidad base validada: máximo 2 libres por semana y máximo 6 días consecutivos.'});
+ return out;
+}
+function cell(x){let code=x.status,cls=code;if(code==='WORK'){code=x.shift||'—';cls=x.shift||'L'}else if(code==='PTFIX'){code=x.shift;cls='PTFIX'}let sub='';if(x.shift&&['WORK','N','PTFIX'].includes(x.status))sub=`${SHIFT[x.shift][0]}–${time(endMinute(x))}${x.reduction?` · -${x.reduction}m`:''}${x.anchor==='POST_N'?' · post NNN':''}${x.breakStart!=null?` · col ${time(x.breakStart)}`:''}`;if(code==='VAC')sub='vacaciones';if(code==='LM')sub='licencia médica';if(code==='COMP')sub='compensatorio';return `<td><span class="cell ${cls}">${code}<span class="small">${sub}</span></span></td>`}
+function render(){
+ const schedule=buildSchedule(),days=schedule.days,k=ui.week,vals=validations(schedule),errs=vals.filter(x=>x.t==='err').length,warns=vals.filter(x=>x.t==='warn').length;
+ if(!state.version||/^v?1\.8$/i.test(String(state.version))) state.version='v1.9';
+ document.getElementById('versionBadge').textContent='Versión '+state.version;document.getElementById('cycleStart').value=state.start;
+ document.getElementById('summary').innerHTML=[[ftCount()+8,'Dotación total'],[ftCount(),'Full-time'],[8,'Part-time'],['NNN','Ancla nocturna'],[errs,'Errores duros'],[warns,'Alertas']].map(([a,b])=>`<div class="card kpi"><b>${a}</b><span>${b}</span></div>`).join('');
+ document.getElementById('tabs').innerHTML=[0,1,2,3].map(x=>`<button class="tab ${x===k?'active':''}" data-w="${x}">Semana ${x+1}</button>`).join('');
+ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{ui.week=+b.dataset.w;try{sessionStorage.setItem('eds-ui-week',String(ui.week))}catch{}render()});
+ const off=mod(Math.floor(diffDays(state.start,ANCHOR)/28),3)+1;
+ document.getElementById('weekLabel').textContent=`${fmt(k*7)} al ${fmt(k*7+6)} · tramo ${off}/3 del superciclo de 12 semanas${state.vacation?` · VAC ${workerName(state.vacation.worker)} ${fmt(state.vacation.from)}–${fmt(state.vacation.to)}`:''}`;
+ document.getElementById('head').innerHTML='<tr><th class="name">Atendedor</th>'+Array.from({length:7},(_,j)=>`<th>${DOW[j]}<br>${fmt(k*7+j)}</th>`).join('')+'<th>Sem.</th></tr>';
+ let rows='';
+ for(const w of workerIds()){
+   const nc=Array.from({length:28},(_,d)=>days[d].find(x=>x.id==='A'+w)).filter(x=>x?.status==='N').length;
+   rows+=`<tr><td class="name">${workerName(w)}${state.selected.includes(w)?'':' <span class="small">no seleccionado</span>'}<span class="small">A${w} · ${nc} noches visibles · grupo semana: ${preferredFamily(w,k*7)==='M'?'Mañana (M1/M2)':preferredFamily(w,k*7)==='B'?'Bisagra (B1/B2)':'Tarde (T1/T2)'} · patrón NNN${w>28?' · agregado':''}</span></td>`;
+   for(let j=0;j<7;j++)rows+=cell(days[k*7+j].find(z=>z.id==='A'+w));
+   rows+=`<td>${weeklyHours(w,k,schedule.reds).toFixed(0)} h<br><span class="small">máx ${maxRun(w)}d</span></td></tr>`;
+ }
+ for(const p of PT){
+   rows+=`<tr><td class="name pt">${state.ptNames[p.id]||p.id}<span class="small">${p.id} · ${p.days.length===3?'Vie-Sáb-Dom':'Sáb-Dom'} · fijo</span></td>`;
+   for(let j=0;j<7;j++)rows+=cell(days[k*7+j].find(z=>z.id===p.id));
+   rows+='<td><span class="small">Horario PT preservado</span></td></tr>';
+ }
+ document.getElementById('body').innerHTML=rows;
+ document.getElementById('coverage').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j,c=coverageMetric(days[d],d),ok=c.worst>=9;return `<div class="daycov ${ok?'ok':'bad'}"><b>${DOW[j]} ${fmt(d)}</b><div class="small">mínimo ${c.worst} (${c.worstAt}) · máximo ${c.peak} (${c.peakAt})</div><div class="bar"><i style="width:${Math.min(100,c.peak/12*100)}%"></i></div><div class="small">06h ${c.at06} · 07h ${c.at07} · 12h ${c.at12}<br>18h ${c.at18} · 22h ${c.at22} · 23:30 ${c.at2330}</div></div>`}).join('');
+ document.getElementById('hourHead').innerHTML='<tr><th class="hour-day">Día</th>'+Array.from({length:24},(_,h)=>`<th>${String(h).padStart(2,'0')}:05</th>`).join('')+'</tr>';
+ document.getElementById('hourBody').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j;let cells='';for(let h=0;h<24;h++){const sample=h*60+5,c=coverageAt(days[d],sample),weekend=d%7>=5;let cls='hour-low';if(h>=7&&h<=22)cls=c<9?'hour-bad':'hour-ok';else if(!weekend&&h===6)cls=c>=8?'hour-ok':'hour-bad';else if(h>=23)cls=c>=7?'hour-warn':'hour-low';cells+=`<td class="${cls}" title="${DOW[j]} ${fmt(d)} · ${String(h).padStart(2,'0')}:05 · ${c} atendedores">${c}</td>`}return `<tr><td class="hour-day">${DOW[j]} ${fmt(d)}</td>${cells}</tr>`}).join('');
+ document.getElementById('alerts').innerHTML=vals.slice(0,60).map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('')+(vals.length>60?`<div class="alert warn">+${vals.length-60} alertas adicionales.</div>`:'');
+ document.getElementById('history').innerHTML=state.history.length?state.history.slice().reverse().map(h=>`<div>v${h.v} · ${h.when} · ${h.note}</div>`).join(''):'Sin versiones adicionales todavía.';
+ setEditingState();
+}
+function modal(html){document.getElementById('modal').innerHTML=`<div class="modal-back"><div class="modal">${html}</div></div>`}
+function closeModal(){document.getElementById('modal').innerHTML=''}
+function addWorkerModal(){
+ const id=nextWorkerId();
+ modal(`<h3>Agregar atendedor FT</h3><div class="alert ok" style="margin-bottom:12px">El nuevo atendedor quedará activo inmediatamente. El motor le asignará automáticamente un patrón de trabajo/libres compatible y un turno en cada día trabajado.</div><div class="field"><label>Nombre</label><input id="newWorkerName" value="Atendedor ${id}" maxlength="80"></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="confirmAdd">Agregar y generar horario</button></div>`);
+ document.getElementById('cancel').onclick=closeModal;
+ document.getElementById('confirmAdd').onclick=async()=>{
+   const name=document.getElementById('newWorkerName').value.trim()||`Atendedor ${id}`,pattern=choosePatternForNewWorker();
+   state.workers.push({id,name,pattern});
+   if(!state.selected.includes(id))state.selected.push(id);
+   state.version++;state.seed++;
+   state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`${name} (A${id}) agregado; patrón base ${pattern+1} y turnos asignados automáticamente.`});
+   await save(true,true);closeModal();render();
+ };
+}
+function workerModal(){
+ const rows=state.workers.map(w=>`<div class="check" style="display:grid;grid-template-columns:auto 1fr auto;gap:8px"><input class="selWorker" type="checkbox" value="${w.id}" ${state.selected.includes(w.id)?'checked':''}><input class="workerNameInput" data-id="${w.id}" value="${String(w.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" aria-label="Nombre A${w.id}"><span class="small">A${w.id}</span></div>`).join('');
+ const ptRows=PT.map(p=>`<div class="check" style="display:grid;grid-template-columns:1fr auto;gap:8px"><input class="ptNameInput" data-id="${p.id}" value="${String(state.ptNames[p.id]||p.id).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" aria-label="Nombre ${p.id}"><span class="small">${p.id}</span></div>`).join('');
+ modal(`<h3>Administrar atendedores</h3><div class="alert ok" style="margin-bottom:12px">Los nombres se pueden editar directamente. Al agregar un FT, queda seleccionado y entra automáticamente al generador con un patrón de trabajo/libres compatible; el motor le asignará turno en cada día trabajado.</div><div class="modal-actions" style="justify-content:flex-start;margin:0 0 12px"><button class="btn primary" id="addWorker">+ Agregar atendedor FT</button></div><h4>Full-time (${ftCount()})</h4><div class="checks" style="grid-template-columns:repeat(2,minmax(0,1fr))">${rows}</div><h4 style="margin-top:16px">Part-time</h4><div class="checks" style="grid-template-columns:repeat(2,minmax(0,1fr))">${ptRows}</div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="saveWorkers">Guardar cambios</button></div>`);
+ document.getElementById('cancel').onclick=closeModal;
+ document.getElementById('addWorker').onclick=async()=>{
+   const id=nextWorkerId(),pattern=choosePatternForNewWorker();
+   state.workers.push({id,name:`Atendedor ${id}`,pattern});state.selected.push(id);
+   state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Atendedor ${id} agregado; patrón base ${pattern+1} y asignación automática de turnos.`});
+   await save(true,true);closeModal();workerModal();
+ };
+ document.getElementById('saveWorkers').onclick=async()=>{
+   state.selected=[...document.querySelectorAll('.selWorker:checked')].map(x=>+x.value);
+   document.querySelectorAll('.workerNameInput').forEach(el=>{const w=workerById(+el.dataset.id);if(w)w.name=el.value.trim()||`Atendedor ${w.id}`});
+   document.querySelectorAll('.ptNameInput').forEach(el=>{state.ptNames[el.dataset.id]=el.value.trim()||el.dataset.id});
+   state.version++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:'Nombres y selección de atendedores actualizados.'});
+   await save(true,true);closeModal();render();
+ };
+}
+function vacationModal(){const current=state.vacation,minDate=state.start,maxDate=dateFor(27).toISOString().slice(0,10),from=current?dateFor(current.from).toISOString().slice(0,10):minDate,to=current?dateFor(current.to).toISOString().slice(0,10):minDate;modal(`<h3>Asignar vacaciones</h3><div class="alert warn" style="margin-bottom:12px">Solo 1 FT puede tener VAC por ciclo. Nunca se asignan aleatoriamente.</div><div class="formgrid"><div class="field"><label>Atendedor</label><select id="vw">${state.workers.map(w=>`<option value="${w.id}" ${current&&current.worker===w.id?'selected':''}>${workerName(w.id)}</option>`).join('')}</select></div><div class="field"><label>Acción</label><select id="vmode"><option value="apply">Asignar / reemplazar</option><option value="clear">Quitar VAC</option></select></div><div class="field"><label>Desde</label><input id="vfrom" type="date" min="${minDate}" max="${maxDate}" value="${from}"></div><div class="field"><label>Hasta</label><input id="vto" type="date" min="${minDate}" max="${maxDate}" value="${to}"></div></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="applyVac">Guardar y generar horario</button></div>`);
+ document.getElementById('cancel').onclick=closeModal;document.getElementById('applyVac').onclick=()=>{if(document.getElementById('vmode').value==='clear'){state.vacation=null;state.version++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:'Vacaciones quitadas del ciclo.'});save(true);closeModal();render();return}const worker=+document.getElementById('vw').value,a=document.getElementById('vfrom').value,b=document.getElementById('vto').value;if(!a||!b)return alert('Selecciona ambas fechas.');const from=Math.round((parseDate(a)-parseDate(state.start))/86400000),to=Math.round((parseDate(b)-parseDate(state.start))/86400000);if(from<0||to>27||from>to)return alert('VAC debe quedar dentro del ciclo.');state.vacation={worker,from,to};state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`VAC manual A${worker} · ${a}–${b}; horario regenerado.`});save(true);closeModal();render()}}
+function absenceModal(type){
+ const title=type==='LM'?'Licencia médica':'Compensatorio';
+ if(type==='LM'){
+   const minDate=isoFor(0),maxDate=isoFor(27);
+   modal(`<h3>Licencia médica</h3><div class="alert warn" style="margin-bottom:12px">La licencia se registra por fechas calendario reales. El período visible debe intersectar el ciclo actual (${minDate} a ${maxDate}).</div><div class="formgrid"><div class="field"><label>Atendedor</label><select id="aw">${state.workers.map(w=>`<option value="${w.id}">${workerName(w.id)}</option>`).join('')}</select></div><div class="field"><label>Acción</label><select id="mode"><option value="apply">Aplicar / agregar período</option><option value="clear">Quitar período en fechas</option></select></div><div class="field"><label>Fecha desde</label><input id="fromDate" type="date" min="${minDate}" max="${maxDate}" value="${minDate}"></div><div class="field"><label>Fecha hasta</label><input id="toDate" type="date" min="${minDate}" max="${maxDate}" value="${minDate}"></div></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="apply">Aplicar y reasignar</button></div>`);
+   document.getElementById('cancel').onclick=closeModal;
+   document.getElementById('apply').onclick=async()=>{
+     const worker=+document.getElementById('aw').value,mode=document.getElementById('mode').value,a=document.getElementById('fromDate').value,b=document.getElementById('toDate').value;
+     if(!a||!b)return alert('Selecciona ambas fechas.');if(a>b)return alert('La fecha desde no puede ser posterior a la fecha hasta.');
+     if(b<minDate||a>maxDate)return alert('El período no intersecta el ciclo visible.');
+     if(mode==='apply'){
+       state.medicalLeaves.push({worker,from:a,to:b});
+       // Unir períodos solapados/contiguos del mismo trabajador.
+       const list=state.medicalLeaves.filter(x=>x.worker===worker).sort((x,y)=>x.from.localeCompare(y.from)),merged=[];
+       for(const x of list){if(!merged.length){merged.push({...x});continue}const last=merged[merged.length-1];const next=new Date(last.to+'T12:00:00');next.setDate(next.getDate()+1);const nextIso=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;if(x.from<=nextIso){if(x.to>last.to)last.to=x.to}else merged.push({...x})}
+       state.medicalLeaves=[...state.medicalLeaves.filter(x=>x.worker!==worker),...merged];
+     }else{
+       const out=[];for(const x of state.medicalLeaves){if(x.worker!==worker||x.to<a||x.from>b){out.push(x);continue}if(x.from<a){const dt=new Date(a+'T12:00:00');dt.setDate(dt.getDate()-1);out.push({...x,to:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`})}if(x.to>b){const dt=new Date(b+'T12:00:00');dt.setDate(dt.getDate()+1);out.push({...x,from:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`})}}
+       state.medicalLeaves=out;
+     }
+     state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Licencia médica ${workerName(worker)} · ${a}–${b} · ${mode==='apply'?'aplicada':'quitada'}; cobertura regenerada.`});await save(true,true);closeModal();render();
+   };return;
+ }
+ modal(`<h3>${title}</h3><div class="formgrid"><div class="field"><label>Atendedor</label><select id="aw">${state.workers.map(w=>`<option value="A${w.id}">${workerName(w.id)}</option>`).join('')}</select></div><div class="field"><label>Acción</label><select id="mode"><option value="apply">Aplicar</option><option value="clear">Quitar marca</option></select></div><div class="field"><label>Día ciclo desde</label><input id="from" type="number" min="1" max="28" value="1"></div><div class="field"><label>Día ciclo hasta</label><input id="to" type="number" min="1" max="28" value="1"></div></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="apply">Aplicar y reasignar</button></div>`);
+ document.getElementById('cancel').onclick=closeModal;document.getElementById('apply').onclick=async()=>{const id=document.getElementById('aw').value,mode=document.getElementById('mode').value;let a=Math.max(1,Math.min(28,+document.getElementById('from').value))-1,b=Math.max(1,Math.min(28,+document.getElementById('to').value))-1;if(a>b)[a,b]=[b,a];for(let d=a;d<=b;d++){if(mode==='clear')delete state.overrides[key(id,d)];else state.overrides[key(id,d)]={code:type}}state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`${title} ${id}, días ${a+1}–${b+1}; cobertura regenerada.`});await save(true,true);closeModal();render()}
+}
+
+function resetAbsencesModal(){
+ const lmCount=state.medicalLeaves.length,vac=state.vacation;
+ modal(`<h3>Reiniciar licencias / vacaciones</h3><div class="alert warn" style="margin-bottom:12px">Esta acción elimina las marcas seleccionadas del ciclo compartido. No modifica COMP ni otros turnos.</div><div class="formgrid"><div class="field"><label>Reinicio</label><select id="resetType"><option value="lm">Todas las licencias médicas (${lmCount})</option><option value="vac">Vacaciones${vac?' asignadas':' (sin asignación)'}</option><option value="both">Licencias médicas + vacaciones</option></select></div></div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn danger" id="confirmReset">Reiniciar</button></div>`);
+ document.getElementById('cancel').onclick=closeModal;
+ document.getElementById('confirmReset').onclick=async()=>{
+   const type=document.getElementById('resetType').value,notes=[];
+   if(type==='lm'||type==='both'){state.medicalLeaves=[];for(const k of Object.keys(state.overrides))if(state.overrides[k]?.code==='LM')delete state.overrides[k];notes.push('LM')}
+   if(type==='vac'||type==='both'){state.vacation=null;notes.push('VAC')}
+   state.version++;state.seed++;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Reinicio ${notes.join(' + ')}; cobertura regenerada.`});
+   await save(true,true);closeModal();render();
+ };
+}
+
+function cloudModal(){
+  if(!cloud.ready){
+    modal(`<h3>Conectar Supabase</h3><div class="alert warn">Falta configurar <b>config.js</b>. Copia config.example.js a config.js e ingresa la URL del proyecto y la publishable/anon key.</div><div class="modal-actions"><button class="btn primary" id="cancel">Cerrar</button></div>`);document.getElementById('cancel').onclick=closeModal;return;
+  }
+  if(cloud.user){
+    modal(`<h3>Supabase conectado</h3><div class="alert ok">Sesión: ${cloud.user.email||cloud.user.id}</div>${cloud.lastError?`<div class="alert err">${cloud.lastError}</div>`:''}<div class="modal-actions"><button class="btn" id="syncNow">Sincronizar ahora</button><button class="btn danger" id="logout">Cerrar sesión</button><button class="btn" id="cancel">Cerrar</button></div>`);
+    document.getElementById('cancel').onclick=closeModal;document.getElementById('syncNow').onclick=async()=>{await save(true,true);closeModal();render()};document.getElementById('logout').onclick=async()=>{await cloud.client.auth.signOut();cloud.user=null;closeModal();updateCloudStatus();render()};return;
+  }
+  modal(`<h3>Iniciar sesión en Supabase</h3><div class="formgrid"><div class="field"><label>Email</label><input id="sEmail" type="email" autocomplete="email"></div><div class="field"><label>Contraseña</label><input id="sPass" type="password" autocomplete="current-password"></div></div><div class="small" style="margin-top:10px">La cuenta debe existir en Supabase Auth. Los invitados ven siempre el espacio compartido. Al iniciar sesión se habilita la edición y los cambios se guardan para todos; localStorage queda como respaldo local.</div><div class="modal-actions"><button class="btn" id="cancel">Cancelar</button><button class="btn primary" id="login">Ingresar</button></div>`);
+  document.getElementById('cancel').onclick=closeModal;document.getElementById('login').onclick=async()=>{const email=document.getElementById('sEmail').value.trim(),password=document.getElementById('sPass').value;if(!email||!password)return alert('Ingresa email y contraseña.');const {data,error}=await cloud.client.auth.signInWithPassword({email,password});if(error)return alert(error.message);cloud.user=data.user;closeModal();await cloudLoadShared();};
+}
+async function generate(){
+ const before=state.version;
+ state.version++;state.seed++;
+ state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Nueva versión generada desde v${before}; semilla ${state.seed}; ${state.selected.length} FT habilitados para redistribución.`});
+ await save(true,true);
+ render();
+ const b=document.getElementById('versionBadge');if(b){const old=b.textContent;b.textContent=`${old} · generada`;setTimeout(()=>{if(b.textContent.includes('· generada'))b.textContent=`Versión ${state.version}`},1800)}
+}
+function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`turnos-eds-v${state.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+document.getElementById('addWorkerBtn').onclick=addWorkerModal;
+document.getElementById('workersBtn').onclick=workerModal;
+document.getElementById('lmBtn').onclick=()=>absenceModal('LM');
+document.getElementById('resetAbsBtn').onclick=resetAbsencesModal;
+document.getElementById('vacBtn').onclick=vacationModal;
+document.getElementById('compBtn').onclick=()=>absenceModal('COMP');
+document.getElementById('cloudBtn').onclick=cloudModal;
+document.getElementById('genBtn').onclick=generate;
+document.getElementById('cycleStart').onchange=e=>{const dt=parseDate(e.target.value);if(dt.getDay()!==1){alert('El inicio del ciclo debe ser lunes.');e.target.value=state.start;return}state.start=e.target.value;state.version++;state.seed=0;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Inicio ciclo cambiado a ${state.start}; superciclo nocturno recalculado.`});save(true);render()};
+document.getElementById('exportBtn').onclick=exportJSON;
+document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state={...state,...JSON.parse(r.result)};save(true);render()}catch(err){alert('JSON inválido')}};r.readAsText(f)};
+render();
+initCloud();
+})();

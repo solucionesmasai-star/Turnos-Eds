@@ -1,10 +1,10 @@
-# Turnos EDS v1.8
+# Turnos EDS v1.9
 
 Versión basada en la v1.7 del planificador maestro de turnos EDS.
 
 ## Objetivo de esta versión
 
-La v1.8 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
+La v1.9 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
 
 ## Familias de turno FT
 
@@ -90,4 +90,11 @@ Si las tablas compartidas aún no existen, ejecutar una sola vez:
 
 ## Cambio principal respecto de v1.7
 
-La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v1.8 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
+La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v1.9 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
+
+
+## Ajustes v1.9
+
+- Se reorganiza la distribución por grupos separados: Mañana (M1/M2), Bisagra (B1/B2) y Tarde (T1/T2).
+- Para volver desde el grupo Tarde al grupo Mañana debe existir un día Libre intermedio.
+- Se mantiene el patrón L → N → N → N → Tarde y los turnos bisagra B1/B2.
