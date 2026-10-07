@@ -1,7 +1,7 @@
 
 (()=>{
 const SUPER_WORK=[[1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0],[1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,1,0],[0,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0],[0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0],[0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1,0,1,1],[1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,0,1,1,1,0,1],[1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1],[1,1,1,0,1,1,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,0,1],[1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0],[1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0],[1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,0,1,1,1,1,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1],[1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,0,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1],[1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0],[1,0,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,0],[0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1],[1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1],[1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1],[1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,0,1,0,1,1,1,1,0,1],[1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1,0,1,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1],[1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,0,1,1,1,1,1,0,1,1,0,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1],[1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,0,1,1,0,1,1,1]];
-const SHIFT={N:['00:00','09:00'],M1:['06:00','15:00'],M2:['07:00','16:00'],B1:['09:00','18:00'],B2:['11:00','20:00'],T1:['13:00','22:00'],T2:['15:00','24:00']};
+const SHIFT={N:['00:00','09:00'],M1:['06:00','15:00'],M2:['07:00','16:00'],B1:['09:00','18:00'],B2:['12:00','21:00'],T1:['14:00','23:00'],T2:['15:00','24:00']};
 const TEMPLATES={
  "WD":{
   "20":{"M1":6,"M2":2,"B1":1,"B2":1,"T1":1,"T2":7},
@@ -160,7 +160,8 @@ const diffDays=(a,b)=>Math.round((parseDate(a)-parseDate(b))/86400000);
 const absDay=d=>diffDays(state.start,ANCHOR)+d;
 const superDay=d=>mod(absDay(d),84);
 function pairForDay(d){const p=mod(Math.floor(absDay(d)/3),14);return new Set([p*2+1,p*2+2])}
-function scheduledNight(w,d){return w<=28&&pairForDay(d).has(w)}
+function cycleSlot(w){const x=workerById(w);return mod((x?.pattern??((w-1)%28)),28)+1}
+function scheduledNight(w,d){return pairForDay(d).has(cycleSlot(w))}
 function afterNightBlock(w,d){return scheduledNight(w,d-1)&&!scheduledNight(w,d)}
 function beforeNightBlock(w,d){return !scheduledNight(w,d)&&scheduledNight(w,d+1)}
 function workingBase(w,d){return !!basePattern(w)?.[superDay(d)]}
@@ -185,10 +186,96 @@ function reductionMap(){
  return rd;
 }
 function dayCat(d){const x=d%7;return x<=3?'WD':x===4?'FRI':x===5?'SAT':'SUN'}
-function templateFor(cat,n){const map=TEMPLATES[cat],keys=Object.keys(map).map(Number).sort((a,b)=>a-b);if(map[n])return {...map[n]};const smaller=keys.filter(k=>k<=n).pop();if(smaller!=null){const t={...map[smaller]},extra=n-smaller;t.B1=(t.B1||0)+extra;return t}const k=keys[0],t={...map[k]};let need=k-n;for(const sh of ['B1','B2','M2','M1','T2']){const take=Math.min(need,t[sh]||0);t[sh]-=take;need-=take;if(!need)break}return t}
+const templateCache=new Map();
+function ptCoverageForCat(cat,m){
+ const dow=cat==='FRI'?4:cat==='SAT'?5:cat==='SUN'?6:0;
+ let n=0;
+ for(const p of PT){if(!p.days.includes(dow))continue;const [a,b]=SHIFT[p.shift];if(mins(a)<=m&&mins(b)>m)n++;}
+ return n;
+}
+function targetBand(m){
+ if(m>=420&&m<840)return [9,12];      // 07:00–14:00
+ if(m>=840&&m<1020)return [10,14];    // 14:00–17:00
+ if(m>=1020&&m<1320)return [9,12];    // 17:00–22:00
+ if(m>=1320&&m<1380)return [9,10];    // 22:00–23:00
+ if(m>=1380&&m<1440)return [7,8];     // 23:00–24:00
+ return [0,15];
+}
+function optimizeTemplate(cat,activeCount){
+ const cacheKey=cat+'|'+activeCount;if(templateCache.has(cacheKey))return {...templateCache.get(cacheKey)};
+ const dayFT=Math.max(0,activeCount-2); // descontar los 2 N
+ const shifts=['M1','M2','B1','B2','T1','T2'];
+ const samples=[365,425,485,545,605,665,725,785,845,905,965,1025,1085,1145,1205,1265,1325,1385];
+ let best=null,bestScore=Infinity;
+ const evalCounts=(c)=>{
+   let score=0,peak=0;
+   for(const m of samples){
+     let cov=(m<540?2:0)+ptCoverageForCat(cat,m); // N presentes hasta 09:00
+     for(const sh of shifts){const [a,b]=SHIFT[sh];if(mins(a)<=m&&mins(b)>m)cov+=c[sh]||0;}
+     peak=Math.max(peak,cov);
+     if(cat!=='SAT'&&cat!=='SUN'&&m>=360&&m<420&&cov<8)score+=(8-cov)*100000;
+     if(m>=420&&m<1320&&cov<9)score+=(9-cov)*100000;
+     if(m>=1320&&m<1380&&cov<9)score+=(9-cov)*100000;
+     const [lo,hi]=targetBand(m);
+     if(cov<lo)score+=(lo-cov)*2000;
+     if(cov>hi)score+=(cov-hi)*80;
+     if(cov>15)score+=(cov-15)*20000;
+   }
+   // Preferir máximo 14, aceptar 15 cuando la dotación fija lo exige.
+   if(peak>14)score+=(peak-14)*250;
+   // Mantener bisagras y evitar mañanas innecesarias, especialmente fin de semana.
+   if(dayFT>=8){if((c.B1||0)<1)score+=1500;if((c.B2||0)<1)score+=1500;}
+   score+=Math.abs((c.B1||0)-(c.B2||0))*4;
+   if(cat==='SAT'||cat==='SUN')score+=(c.M1||0)*5;
+   else score+=Math.abs((c.M1||0)-6)*3;
+   // Asegurar tarde suficiente para continuidad hasta cierre.
+   const ptT2=ptCoverageForCat(cat,1385);
+   const late=(c.T2||0)+ptT2;
+   score+=Math.abs(late-7)*25;
+   return score;
+ };
+ for(let m1=0;m1<=dayFT;m1++)for(let m2=0;m2<=dayFT-m1;m2++)for(let b1=0;b1<=dayFT-m1-m2;b1++)for(let b2=0;b2<=dayFT-m1-m2-b1;b2++)for(let t1=0;t1<=dayFT-m1-m2-b1-b2;t1++){
+   const t2=dayFT-m1-m2-b1-b2-t1;
+   const c={M1:m1,M2:m2,B1:b1,B2:b2,T1:t1,T2:t2};
+   const s=evalCounts(c);if(s<bestScore){bestScore=s;best=c;}
+ }
+ best=best||{M1:0,M2:0,B1:0,B2:0,T1:0,T2:dayFT};templateCache.set(cacheKey,best);return {...best};
+}
+function templateFor(cat,n){return optimizeTemplate(cat,n)}
 function sortWorkers(arr,d){return [...arr].sort((a,b)=>{const sa=state.selected.includes(a)?((a+d*3+state.seed*5)%Math.max(1,ftCount())):a+100;const sb=state.selected.includes(b)?((b+d*3+state.seed*5)%Math.max(1,ftCount())):b+100;return sa-sb})}
 
+function buildNightSets(){
+ const nights=Array.from({length:28},(_,d)=>new Set(workerIds().filter(w=>scheduledNight(w,d))));
+ const counts=Object.fromEntries(workerIds().map(w=>[w,0]));
+ for(let d=0;d<28;d++)for(const w of nights[d])if(counts[w]!=null)counts[w]++;
+ // Contingencias: si VAC/LM/COMP afecta un N, mantener 2 N por cobertura.
+ for(let d=0;d<28;d++){
+   for(const w of [...nights[d]])if(unavailable(w,d)||!workingBase(w,d)){nights[d].delete(w);if(counts[w]!=null)counts[w]--}
+   while(nights[d].size<2){
+     const candidates=[];
+     for(const w of workerIds()){
+       if(nights[d].has(w)||unavailable(w,d)||!workingBase(w,d))continue;
+       const prevFree=!workingBase(w,d-1),postT=workingBase(w,d+1);
+       const score=(prevFree?0:100)+(postT?0:20)+(counts[w]||0)*10+(state.selected.includes(w)?0:50)+mod(w+d+state.seed,Math.max(1,ftCount()))/100;
+       candidates.push([score,w]);
+     }
+     candidates.sort((a,b)=>a[0]-b[0]);if(!candidates.length)break;
+     const w=candidates[0][1];nights[d].add(w);counts[w]=(counts[w]||0)+1;
+   }
+ }
+ return {nights,counts};
+}
+
 const FAMILY_ORDER=['M','B','T'];
+function carriesTardeDebt(meta){return !!meta?.needsFreeBeforeMorning}
+function updateTardeDebt(prevDebt,entry){
+ if(!entry) return !!prevDebt;
+ if(['L','VAC','LM','COMP'].includes(entry.status)) return false;
+ const fam=shiftFamily(entry.shift);
+ if(fam==='T') return true;
+ if(fam==='M') return false;
+ return !!prevDebt;
+}
 function shiftFamily(sh){return sh?.startsWith('M')?'M':sh?.startsWith('B')?'B':sh?.startsWith('T')?'T':sh==='N'?'N':null}
 function preferredFamily(w,d){
  const absWeek=Math.floor(absDay(d)/7);
@@ -200,20 +287,22 @@ function familyDistance(pref,target){
  if(a<0||b<0)return 2;
  return mod(b-a,3)===1?1:2;
 }
-function prevShiftFor(prevMap,w){return prevMap?.get(w)?.shift||null}
-function transitionAllowed(prevShift,nextShift){
+function prevShiftFor(prevMap,w){return prevMap?.get(w)?.entry?.shift||prevMap?.get(w)?.shift||null}
+function transitionAllowed(prevMap,w,nextShift){
+ const prevShift=prevShiftFor(prevMap,w);
  if(['T1','T2'].includes(prevShift)&&['M1','M2'].includes(nextShift))return false;
+ if(['M1','M2'].includes(nextShift)&&carriesTardeDebt(prevMap?.get(w)))return false;
  return true;
 }
 function candidateScore(w,sh,d,equity,prevMap){
- const fam=shiftFamily(sh),pref=preferredFamily(w,d),prev=prevShiftFor(prevMap,w);
- if(!transitionAllowed(prev,sh))return 1e9;
+ const fam=shiftFamily(sh),pref=preferredFamily(w,d);
+ if(!transitionAllowed(prevMap,w,sh))return 1e9;
  const famLoad=equity?.[w]?.[fam]||0,shiftLoad=equity?.[w]?.[sh]||0;
  return familyDistance(pref,fam)*100 + famLoad*12 + shiftLoad*3 + mod(w+d+state.seed,ftCount()+7)/100;
 }
 function pickForShift(remaining,sh,count,d,equity,prevMap,forced=[]){
  const selected=[];
- for(const w of forced){if(remaining.includes(w)&&selected.length<count&&transitionAllowed(prevShiftFor(prevMap,w),sh))selected.push(w)}
+ for(const w of forced){if(remaining.includes(w)&&selected.length<count&&transitionAllowed(prevMap,w,sh))selected.push(w)}
  const pool=remaining.filter(w=>!selected.includes(w)).sort((a,b)=>candidateScore(a,sh,d,equity,prevMap)-candidateScore(b,sh,d,equity,prevMap));
  for(const w of pool){if(selected.length>=count)break;if(candidateScore(w,sh,d,equity,prevMap)>=1e9)continue;selected.push(w)}
  return selected;
@@ -255,8 +344,8 @@ function allocateDay(d,nights,reds,equity,prevMap){
   remaining=remaining.filter(w=>!chosen.includes(w));
  }
  while(remaining.length){
-  const w=remaining.shift(),prev=prevShiftFor(prevMap,w);
-  const choices=['B1','B2','T1','T2','M2','M1'].filter(sh=>transitionAllowed(prev,sh));
+  const w=remaining.shift();
+  const choices=['B1','B2','T1','T2','M2','M1'].filter(sh=>transitionAllowed(prevMap,w,sh));
   choices.sort((a,b)=>candidateScore(w,a,d,equity,prevMap)-candidateScore(w,b,d,equity,prevMap));
   const sh=choices[0]||'B1';entries.push({id:'A'+w,type:'FT',w,status:'WORK',shift:sh,reduction:reds[w]?.[d]||0});addEquity(equity,w,sh);
  }
@@ -306,7 +395,16 @@ function assignBreaks(entries,d){
 function buildSchedule(){
  const reds=reductionMap(),nm=buildNightSets(),equity=Object.fromEntries(workerIds().map(w=>[w,{M:0,B:0,T:0,N:0,M1:0,M2:0,B1:0,B2:0,T1:0,T2:0}])),days=[];
  let prevMap=new Map();
- for(let d=0;d<28;d++){const day=allocateDay(d,nm.nights,reds,equity,prevMap);days.push(day);prevMap=new Map(day.filter(x=>x.type==='FT').map(x=>[x.w,x]));}
+ for(let d=0;d<28;d++){
+  const day=allocateDay(d,nm.nights,reds,equity,prevMap);
+  days.push(day);
+  const nextMap=new Map();
+  for(const x of day.filter(x=>x.type==='FT')){
+    const prevMeta=prevMap.get(x.w);
+    nextMap.set(x.w,{entry:x,needsFreeBeforeMorning:updateTardeDebt(prevMeta?.needsFreeBeforeMorning,x)});
+  }
+  prevMap=nextMap;
+ }
  return {days,nightCounts:nm.counts,nights:nm.nights,reds,equity};
 }
 function endMinute(x){if(!x.shift)return null;return mins(SHIFT[x.shift][1])-(x.reduction||0)}
@@ -331,7 +429,8 @@ function validations(schedule){
    if(d%7<5){
      for(let m=365;m<420;m+=30){const c=coverageAt(schedule.days[d],m);if(c<8){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<8 entre 06:00–07:00).`});break}}
    }
-   const start=425;for(let m=start;m<=1325;m+=30){const c=coverageAt(schedule.days[d],m);if(c<9){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<9 en horario crítico desde 07:00).`});break}}
+   const start=425;for(let m=start;m<=1355;m+=30){const c=coverageAt(schedule.days[d],m);if(c<9){hard++;out.push({t:'err',m:`${fmt(d)} ${time(m)}: cobertura ${c} (<9 entre 07:00 y 23:00).`});break}}
+   for(let m=425;m<=1355;m+=30){const c=coverageAt(schedule.days[d],m);if(c>15){out.push({t:'warn',m:`${fmt(d)} ${time(m)}: dotación ${c} (>15); revisar distribución automática.`});break}}
  }
  // Validación del patrón L-N-N-N-T para los N planificados base.
  for(const w of workerIds())for(let d=0;d<28;d++){
@@ -344,21 +443,29 @@ function validations(schedule){
      }
    }
  }
- // Transición dura: tarde no puede retroceder directamente a mañana al día siguiente.
- for(const w of workerIds())for(let d=1;d<28;d++){
-  const a=schedule.days[d-1].find(x=>x.id==='A'+w),b=schedule.days[d].find(x=>x.id==='A'+w);
-  if(a&&b&&['T1','T2'].includes(a.shift)&&['M1','M2'].includes(b.shift))out.push({t:'err',m:`${workerName(w)}: transición ${a.shift}→${b.shift} no permitida entre ${fmt(d-1)} y ${fmt(d)}.`});
+ // Transición dura por grupos: para volver desde Tarde a Mañana debe existir un Libre intermedio.
+ for(const w of workerIds()){
+  let deudaTarde=false;
+  for(let d=0;d<28;d++){
+    const x=schedule.days[d].find(y=>y.id==='A'+w); if(!x) continue;
+    if(['L','VAC','LM','COMP'].includes(x.status)){deudaTarde=false; continue;}
+    const fam=shiftFamily(x.shift);
+    if(fam==='M' && deudaTarde) out.push({t:'err',m:`${workerName(w)}: no puede pasar de grupo Tarde a grupo Mañana sin Libre previo (${fmt(d)}).`});
+    if(fam==='T') deudaTarde=true;
+    else if(fam==='M') deudaTarde=false;
+  }
  }
- out.unshift({t:'ok',m:'Rotación semanal automática activa: Mañana → Bisagra → Tarde, con reequilibrio por carga acumulada y B1/B2 preservados.'});
+ out.unshift({t:'ok',m:'Rotación semanal automática activa por grupos separados: Mañana (M1/M2) → Bisagra (B1/B2) → Tarde (T1/T2), con retorno a Mañana solo tras Libre y B1/B2 preservados.'});
  // Reemplazos de contingencia que no siguen el bloque natural.
  for(let d=0;d<28;d++)for(const x of schedule.days[d])if(x.status==='N'&&x.type==='FT'&&!scheduledNight(x.w,d))out.push({t:'warn',m:`${fmt(d)}: A${x.w} cubre N por contingencia fuera de su bloque N-N-N.`});
- if(!hard)out.unshift({t:'ok',m:'Cobertura mínima validada: 8 entre 06:00–07:00 L-V y al menos 9 atendedores desde las 07:00 en horario crítico.'});
+ if(!hard)out.unshift({t:'ok',m:'Cobertura mínima validada: 8 entre 06:00–07:00 L-V y al menos 9 atendedores entre 07:00 y 23:00; el motor intenta mantener un máximo preferente de 15.'});
  out.unshift({t:'ok',m:'Continuidad base validada: máximo 2 libres por semana y máximo 6 días consecutivos.'});
  return out;
 }
 function cell(x){let code=x.status,cls=code;if(code==='WORK'){code=x.shift||'—';cls=x.shift||'L'}else if(code==='PTFIX'){code=x.shift;cls='PTFIX'}let sub='';if(x.shift&&['WORK','N','PTFIX'].includes(x.status))sub=`${SHIFT[x.shift][0]}–${time(endMinute(x))}${x.reduction?` · -${x.reduction}m`:''}${x.anchor==='POST_N'?' · post NNN':''}${x.breakStart!=null?` · col ${time(x.breakStart)}`:''}`;if(code==='VAC')sub='vacaciones';if(code==='LM')sub='licencia médica';if(code==='COMP')sub='compensatorio';return `<td><span class="cell ${cls}">${code}<span class="small">${sub}</span></span></td>`}
 function render(){
  const schedule=buildSchedule(),days=schedule.days,k=ui.week,vals=validations(schedule),errs=vals.filter(x=>x.t==='err').length,warns=vals.filter(x=>x.t==='warn').length;
+ if(state.version==null||state.version==='') state.version=1;
  document.getElementById('versionBadge').textContent='Versión '+state.version;document.getElementById('cycleStart').value=state.start;
  document.getElementById('summary').innerHTML=[[ftCount()+8,'Dotación total'],[ftCount(),'Full-time'],[8,'Part-time'],['NNN','Ancla nocturna'],[errs,'Errores duros'],[warns,'Alertas']].map(([a,b])=>`<div class="card kpi"><b>${a}</b><span>${b}</span></div>`).join('');
  document.getElementById('tabs').innerHTML=[0,1,2,3].map(x=>`<button class="tab ${x===k?'active':''}" data-w="${x}">Semana ${x+1}</button>`).join('');
@@ -369,7 +476,7 @@ function render(){
  let rows='';
  for(const w of workerIds()){
    const nc=Array.from({length:28},(_,d)=>days[d].find(x=>x.id==='A'+w)).filter(x=>x?.status==='N').length;
-   rows+=`<tr><td class="name">${workerName(w)}${state.selected.includes(w)?'':' <span class="small">no seleccionado</span>'}<span class="small">A${w} · ${nc} noches visibles · familia semana: ${preferredFamily(w,k*7)==='M'?'Mañana':preferredFamily(w,k*7)==='B'?'Bisagra':'Tarde'} · patrón NNN${w>28?' · agregado':''}</span></td>`;
+   rows+=`<tr><td class="name">${workerName(w)}${state.selected.includes(w)?'':' <span class="small">no seleccionado</span>'}<span class="small">A${w} · ${nc} noches visibles · grupo semana: ${preferredFamily(w,k*7)==='M'?'Mañana (M1/M2)':preferredFamily(w,k*7)==='B'?'Bisagra (B1/B2)':'Tarde (T1/T2)'} · patrón NNN${w>28?' · agregado':''}</span></td>`;
    for(let j=0;j<7;j++)rows+=cell(days[k*7+j].find(z=>z.id==='A'+w));
    rows+=`<td>${weeklyHours(w,k,schedule.reds).toFixed(0)} h<br><span class="small">máx ${maxRun(w)}d</span></td></tr>`;
  }
@@ -381,7 +488,7 @@ function render(){
  document.getElementById('body').innerHTML=rows;
  document.getElementById('coverage').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j,c=coverageMetric(days[d],d),ok=c.worst>=9;return `<div class="daycov ${ok?'ok':'bad'}"><b>${DOW[j]} ${fmt(d)}</b><div class="small">mínimo ${c.worst} (${c.worstAt}) · máximo ${c.peak} (${c.peakAt})</div><div class="bar"><i style="width:${Math.min(100,c.peak/12*100)}%"></i></div><div class="small">06h ${c.at06} · 07h ${c.at07} · 12h ${c.at12}<br>18h ${c.at18} · 22h ${c.at22} · 23:30 ${c.at2330}</div></div>`}).join('');
  document.getElementById('hourHead').innerHTML='<tr><th class="hour-day">Día</th>'+Array.from({length:24},(_,h)=>`<th>${String(h).padStart(2,'0')}:05</th>`).join('')+'</tr>';
- document.getElementById('hourBody').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j;let cells='';for(let h=0;h<24;h++){const sample=h*60+5,c=coverageAt(days[d],sample),weekend=d%7>=5;let cls='hour-low';if(h>=7&&h<=22)cls=c<9?'hour-bad':'hour-ok';else if(!weekend&&h===6)cls=c>=8?'hour-ok':'hour-bad';else if(h>=23)cls=c>=7?'hour-warn':'hour-low';cells+=`<td class="${cls}" title="${DOW[j]} ${fmt(d)} · ${String(h).padStart(2,'0')}:05 · ${c} atendedores">${c}</td>`}return `<tr><td class="hour-day">${DOW[j]} ${fmt(d)}</td>${cells}</tr>`}).join('');
+ document.getElementById('hourBody').innerHTML=Array.from({length:7},(_,j)=>{const d=k*7+j;let cells='';for(let h=0;h<24;h++){const sample=h*60+5,c=coverageAt(days[d],sample),weekend=d%7>=5;let cls='hour-low';if(h>=7&&h<=22)cls=c<9?'hour-bad':c>15?'hour-warn':'hour-ok';else if(!weekend&&h===6)cls=c>=8?'hour-ok':'hour-bad';else if(h>=23)cls=c>=7&&c<=8?'hour-warn':c>15?'hour-warn':'hour-low';cells+=`<td class="${cls}" title="${DOW[j]} ${fmt(d)} · ${String(h).padStart(2,'0')}:05 · ${c} atendedores">${c}</td>`}return `<tr><td class="hour-day">${DOW[j]} ${fmt(d)}</td>${cells}</tr>`}).join('');
  document.getElementById('alerts').innerHTML=vals.slice(0,60).map(x=>`<div class="alert ${x.t}">${x.m}</div>`).join('')+(vals.length>60?`<div class="alert warn">+${vals.length-60} alertas adicionales.</div>`:'');
  document.getElementById('history').innerHTML=state.history.length?state.history.slice().reverse().map(h=>`<div>v${h.v} · ${h.when} · ${h.note}</div>`).join(''):'Sin versiones adicionales todavía.';
  setEditingState();
@@ -475,11 +582,21 @@ function cloudModal(){
 }
 async function generate(){
  const before=state.version;
- state.version++;state.seed++;
- state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Nueva versión generada desde v${before}; semilla ${state.seed}; ${state.selected.length} FT habilitados para redistribución.`});
+ const selectedWorkers=state.workers.filter(w=>state.selected.includes(w.id));
+ // Reasignar de verdad los ciclos: rotamos los patrones completos entre los FT seleccionados.
+ // El patrón contiene trabajo/libres y además determina el cupo nocturno, por lo que ambos se mueven juntos.
+ if(selectedWorkers.length>1){
+   const patterns=selectedWorkers.map(w=>mod(w.pattern??((w.id-1)%28),28));
+   const step=1+mod(state.seed||0,Math.max(1,selectedWorkers.length-1));
+   selectedWorkers.forEach((w,i)=>{w.pattern=patterns[mod(i+step,patterns.length)]});
+ }
+ state.seed=(state.seed||0)+1;
+ const n=Number(state.version);
+ state.version=Number.isFinite(n)?n+1:(state.seed+1);
+ state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Nueva versión desde ${before}: ciclos FT reasignados (${selectedWorkers.length} seleccionados), incluyendo trabajo/libres, rotación M/B/T y bloques nocturnos NNN.`});
  await save(true,true);
  render();
- const b=document.getElementById('versionBadge');if(b){const old=b.textContent;b.textContent=`${old} · generada`;setTimeout(()=>{if(b.textContent.includes('· generada'))b.textContent=`Versión ${state.version}`},1800)}
+ const b=document.getElementById('versionBadge');if(b){const old=b.textContent;b.textContent=`${old} · ciclos reasignados`;setTimeout(()=>{if(b.textContent.includes('· ciclos reasignados'))b.textContent=`Versión ${state.version}`},2200)}
 }
 function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`turnos-eds-v${state.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
 document.getElementById('addWorkerBtn').onclick=addWorkerModal;

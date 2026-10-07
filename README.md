@@ -1,10 +1,10 @@
-# Turnos EDS v2.0
+# Turnos EDS v2.1
 
 Versión basada en la v1.7 del planificador maestro de turnos EDS.
 
 ## Objetivo de esta versión
 
-La v2.0 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
+La v2.1 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
 
 ## Familias de turno FT
 
@@ -90,17 +90,17 @@ Si las tablas compartidas aún no existen, ejecutar una sola vez:
 
 ## Cambio principal respecto de v1.7
 
-La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2.0 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
+La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2.1 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
 
 
-## Ajustes v2.0
+## Ajustes v2.1
 
 - Se reorganiza la distribución por grupos separados: Mañana (M1/M2), Bisagra (B1/B2) y Tarde (T1/T2).
 - Para volver desde el grupo Tarde al grupo Mañana debe existir un día Libre intermedio.
 - Se mantiene el patrón L → N → N → N → Tarde y los turnos bisagra B1/B2.
 
 
-## Optimización v2.0
+## Optimización v2.1
 
 - B2 cambia a 12:00–21:00.
 - T1 cambia a 14:00–23:00.
@@ -109,3 +109,12 @@ La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2
 - Prioridad 1: al menos 9 atendedores entre 07:00 y 23:00.
 - Prioridad 2: evitar más de 15 atendedores simultáneos; 14 es el objetivo preferente cuando la estructura lo permite.
 - La redistribución conserva B1/B2 y las reglas de rotación y descanso.
+
+
+## Cambios v2.1 — Generar versión
+
+- El botón **Generar versión** ahora reasigna realmente los ciclos entre los FT seleccionados.
+- Se rota el patrón completo de cada trabajador: días trabajados, libres y posición dentro del superciclo.
+- El bloque nocturno NNN queda asociado al ciclo/patrón, por lo que también cambia de trabajador al generar una nueva versión.
+- VAC, LM, COMP, nombres, PT y fecha de inicio del ciclo se conservan.
+- Después de reasignar, el motor recalcula turnos M/B/T, cobertura y validaciones.
