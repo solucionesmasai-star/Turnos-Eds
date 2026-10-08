@@ -1,10 +1,10 @@
-# Turnos EDS v2.1
+# Turnos EDS v2.2
 
 Versión basada en la v1.7 del planificador maestro de turnos EDS.
 
 ## Objetivo de esta versión
 
-La v2.1 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
+La v2.2 incorpora una rotación semanal automática orientada a equidad e igualdad entre los atendedores FT, manteniendo la continuidad operacional y los turnos bisagra.
 
 ## Familias de turno FT
 
@@ -90,17 +90,17 @@ Si las tablas compartidas aún no existen, ejecutar una sola vez:
 
 ## Cambio principal respecto de v1.7
 
-La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2.1 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
+La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2.2 mantiene esas necesidades operativas, elimina M3 y agrega una capa de rotación semanal y compensación automática de carga para repartir de manera más equitativa Mañana, Bisagra y Tarde.
 
 
-## Ajustes v2.1
+## Ajustes v2.2
 
 - Se reorganiza la distribución por grupos separados: Mañana (M1/M2), Bisagra (B1/B2) y Tarde (T1/T2).
 - Para volver desde el grupo Tarde al grupo Mañana debe existir un día Libre intermedio.
 - Se mantiene el patrón L → N → N → N → Tarde y los turnos bisagra B1/B2.
 
 
-## Optimización v2.1
+## Optimización v2.2
 
 - B2 cambia a 12:00–21:00.
 - T1 cambia a 14:00–23:00.
@@ -111,10 +111,20 @@ La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2
 - La redistribución conserva B1/B2 y las reglas de rotación y descanso.
 
 
-## Cambios v2.1 — Generar versión
+## Cambios v2.2 — Generar versión
 
 - El botón **Generar versión** ahora reasigna realmente los ciclos entre los FT seleccionados.
 - Se rota el patrón completo de cada trabajador: días trabajados, libres y posición dentro del superciclo.
 - El bloque nocturno NNN queda asociado al ciclo/patrón, por lo que también cambia de trabajador al generar una nueva versión.
 - VAC, LM, COMP, nombres, PT y fecha de inicio del ciclo se conservan.
 - Después de reasignar, el motor recalcula turnos M/B/T, cobertura y validaciones.
+
+
+## Navegación calendario v2.2
+
+- Botones **Semana anterior** y **Semana siguiente** avanzan cronológicamente.
+- Al salir de la semana 4, la vista entra automáticamente en la semana 1 del ciclo siguiente; al retroceder desde semana 1, muestra la semana 4 del ciclo anterior.
+- La navegación es de visualización: no altera el inicio del ciclo base ni guarda un cambio de calendario en Supabase.
+- Se muestra un panel de ciclo con fecha de inicio, término, semana 1/4–4/4 y la fecha exacta de inicio del ciclo siguiente.
+- El motor recalcula cada ciclo visualizado usando el mismo superciclo, cobertura, noches y reglas de transición.
+- VAC y COMP relativos al ciclo base no se arrastran automáticamente a otros ciclos; las licencias médicas por fecha calendario sí se evalúan en la fecha correspondiente.

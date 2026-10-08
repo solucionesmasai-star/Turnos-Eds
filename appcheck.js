@@ -42,7 +42,7 @@ try{const saved=JSON.parse(localStorage.getItem('eds-turnos-v11')||localStorage.
 if(!Array.isArray(state.workers)||!state.workers.length)state.workers=Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i}));
 if(!state.ptNames)state.ptNames=Object.fromEntries(PT.map(p=>[p.id,p.id]));
 if(!Array.isArray(state.medicalLeaves))state.medicalLeaves=[];
-let ui={week:Number.isInteger(state.week)?Math.max(0,Math.min(3,state.week)):0};try{const sw=Number(sessionStorage.getItem('eds-ui-week'));if(Number.isInteger(sw)&&sw>=0&&sw<=3)ui.week=sw}catch{}
+let ui={week:Number.isInteger(state.week)?Math.max(0,Math.min(3,state.week)):0,cycleOffset:0};try{const sw=Number(sessionStorage.getItem('eds-ui-week')),co=Number(sessionStorage.getItem('eds-ui-cycle-offset'));if(Number.isInteger(sw)&&sw>=0&&sw<=3)ui.week=sw;if(Number.isInteger(co))ui.cycleOffset=co}catch{}
 for(const w of state.workers){if(!w.name)w.name=`Atendedor ${w.id}`;if(w.pattern==null)w.pattern=(w.id-1)%28;}
 state.selected=state.selected.filter(id=>state.workers.some(w=>w.id===id));
 const cloud={client:null,user:null,ready:false,syncing:false,lastError:'',lastSyncedAt:'',workspace:'principal',saveQueued:false,snapshotQueued:false,remoteLoaded:false,pollTimer:null};
@@ -153,11 +153,14 @@ const mod=(a,n)=>((a%n)+n)%n;
 const mins=t=>{if(t==='24:00')return 1440;const [h,m]=t.split(':').map(Number);return h*60+m};
 const time=m=>{if(m>=1440)return'24:00';return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
 const parseDate=s=>new Date(s+'T12:00:00');
-const dateFor=d=>{const x=parseDate(state.start);x.setDate(x.getDate()+d);return x};
-const isoFor=d=>{const x=dateFor(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+const toISO=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+function viewedCycleStart(){const x=parseDate(state.start);x.setDate(x.getDate()+ui.cycleOffset*28);return x}
+function viewedCycleStartISO(){return toISO(viewedCycleStart())}
+const dateFor=d=>{const x=viewedCycleStart();x.setDate(x.getDate()+d);return x};
+const isoFor=d=>toISO(dateFor(d));
 const fmt=d=>new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit'}).format(dateFor(d));
 const diffDays=(a,b)=>Math.round((parseDate(a)-parseDate(b))/86400000);
-const absDay=d=>diffDays(state.start,ANCHOR)+d;
+const absDay=d=>diffDays(viewedCycleStartISO(),ANCHOR)+d;
 const superDay=d=>mod(absDay(d),84);
 function pairForDay(d){const p=mod(Math.floor(absDay(d)/3),14);return new Set([p*2+1,p*2+2])}
 function cycleSlot(w){const x=workerById(w);return mod((x?.pattern??((w-1)%28)),28)+1}
@@ -165,9 +168,9 @@ function scheduledNight(w,d){return pairForDay(d).has(cycleSlot(w))}
 function afterNightBlock(w,d){return scheduledNight(w,d-1)&&!scheduledNight(w,d)}
 function beforeNightBlock(w,d){return !scheduledNight(w,d)&&scheduledNight(w,d+1)}
 function workingBase(w,d){return !!basePattern(w)?.[superDay(d)]}
-function vacationDay(w,d){return !!state.vacation&&state.vacation.worker===w&&d>=state.vacation.from&&d<=state.vacation.to}
+function vacationDay(w,d){return ui.cycleOffset===0&&!!state.vacation&&state.vacation.worker===w&&d>=state.vacation.from&&d<=state.vacation.to}
 function medicalLeaveDay(w,d){const day=isoFor(d);return state.medicalLeaves.some(x=>x.worker===w&&x.from<=day&&x.to>=day)}
-function overrideCode(w,d){return state.overrides[key('A'+w,d)]?.code||null}
+function overrideCode(w,d){return ui.cycleOffset===0?(state.overrides[key('A'+w,d)]?.code||null):null}
 function unavailable(w,d){const o=overrideCode(w,d);return vacationDay(w,d)||medicalLeaveDay(w,d)||o==='LM'||o==='COMP'}
 
 function reductionMap(){
@@ -469,9 +472,14 @@ function render(){
  document.getElementById('versionBadge').textContent='Versión '+state.version;document.getElementById('cycleStart').value=state.start;
  document.getElementById('summary').innerHTML=[[ftCount()+8,'Dotación total'],[ftCount(),'Full-time'],[8,'Part-time'],['NNN','Ancla nocturna'],[errs,'Errores duros'],[warns,'Alertas']].map(([a,b])=>`<div class="card kpi"><b>${a}</b><span>${b}</span></div>`).join('');
  document.getElementById('tabs').innerHTML=[0,1,2,3].map(x=>`<button class="tab ${x===k?'active':''}" data-w="${x}">Semana ${x+1}</button>`).join('');
- document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{ui.week=+b.dataset.w;try{sessionStorage.setItem('eds-ui-week',String(ui.week))}catch{}render()});
- const off=mod(Math.floor(diffDays(state.start,ANCHOR)/28),3)+1;
- document.getElementById('weekLabel').textContent=`${fmt(k*7)} al ${fmt(k*7+6)} · tramo ${off}/3 del superciclo de 12 semanas${state.vacation?` · VAC ${workerName(state.vacation.worker)} ${fmt(state.vacation.from)}–${fmt(state.vacation.to)}`:''}`;
+ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{ui.week=+b.dataset.w;try{sessionStorage.setItem('eds-ui-week',String(ui.week));sessionStorage.setItem('eds-ui-cycle-offset',String(ui.cycleOffset))}catch{}render()});
+ const viewedStart=viewedCycleStartISO(),off=mod(Math.floor(diffDays(viewedStart,ANCHOR)/28),3)+1;
+ const cycleEnd=fmt(27),nextStart=(()=>{const x=dateFor(28);return new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}).format(x)})();
+ const cycleLabel=ui.cycleOffset===0?'Ciclo base':ui.cycleOffset>0?`Ciclo +${ui.cycleOffset}`:`Ciclo ${ui.cycleOffset}`;
+ document.getElementById('weekLabel').textContent=`${fmt(k*7)} al ${fmt(k*7+6)} · ${cycleLabel} · tramo ${off}/3 del superciclo de 12 semanas${ui.cycleOffset===0&&state.vacation?` · VAC ${workerName(state.vacation.worker)} ${fmt(state.vacation.from)}–${fmt(state.vacation.to)}`:''}`;
+ const isStart=k===0,isEnd=k===3;
+ const ci=document.getElementById('cycleInfo');ci.className=`cycle-banner ${isStart?'start':''} ${isEnd?'end':''}`;
+ ci.innerHTML=`<div><div class="cycle-title">${isStart?'Inicio de ciclo':isEnd?'Última semana del ciclo':'Ciclo en curso'} · ${cycleLabel}</div><div class="cycle-meta">Inicio ${new Intl.DateTimeFormat('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}).format(viewedCycleStart())} · término ${cycleEnd}${isEnd?` · siguiente ciclo comienza ${nextStart}`:''}</div></div><span class="cycle-chip">Semana ${k+1} de 4</span>`;
  document.getElementById('head').innerHTML='<tr><th class="name">Atendedor</th>'+Array.from({length:7},(_,j)=>`<th>${DOW[j]}<br>${fmt(k*7+j)}</th>`).join('')+'<th>Sem.</th></tr>';
  let rows='';
  for(const w of workerIds()){
@@ -598,7 +606,18 @@ async function generate(){
  render();
  const b=document.getElementById('versionBadge');if(b){const old=b.textContent;b.textContent=`${old} · ciclos reasignados`;setTimeout(()=>{if(b.textContent.includes('· ciclos reasignados'))b.textContent=`Versión ${state.version}`},2200)}
 }
+function persistView(){try{sessionStorage.setItem('eds-ui-week',String(ui.week));sessionStorage.setItem('eds-ui-cycle-offset',String(ui.cycleOffset))}catch{}}
+function moveWeek(delta){
+ let w=ui.week+delta;
+ while(w<0){ui.cycleOffset--;w+=4}
+ while(w>3){ui.cycleOffset++;w-=4}
+ ui.week=w;persistView();render();
+}
+function returnBaseCycle(){ui.cycleOffset=0;ui.week=0;persistView();render();}
 function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`turnos-eds-v${state.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+document.getElementById('prevWeekBtn').onclick=()=>moveWeek(-1);
+document.getElementById('nextWeekBtn').onclick=()=>moveWeek(1);
+document.getElementById('baseCycleBtn').onclick=returnBaseCycle;
 document.getElementById('addWorkerBtn').onclick=addWorkerModal;
 document.getElementById('workersBtn').onclick=workerModal;
 document.getElementById('lmBtn').onclick=()=>absenceModal('LM');
@@ -607,7 +626,7 @@ document.getElementById('vacBtn').onclick=vacationModal;
 document.getElementById('compBtn').onclick=()=>absenceModal('COMP');
 document.getElementById('cloudBtn').onclick=cloudModal;
 document.getElementById('genBtn').onclick=generate;
-document.getElementById('cycleStart').onchange=e=>{const dt=parseDate(e.target.value);if(dt.getDay()!==1){alert('El inicio del ciclo debe ser lunes.');e.target.value=state.start;return}state.start=e.target.value;state.version++;state.seed=0;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Inicio ciclo cambiado a ${state.start}; superciclo nocturno recalculado.`});save(true);render()};
+document.getElementById('cycleStart').onchange=e=>{const dt=parseDate(e.target.value);if(dt.getDay()!==1){alert('El inicio del ciclo debe ser lunes.');e.target.value=state.start;return}state.start=e.target.value;ui.cycleOffset=0;ui.week=0;persistView();state.version++;state.seed=0;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Inicio ciclo base cambiado a ${state.start}; navegación calendario reiniciada y superciclo nocturno recalculado.`});save(true);render()};
 document.getElementById('exportBtn').onclick=exportJSON;
 document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state={...state,...JSON.parse(r.result)};save(true);render()}catch(err){alert('JSON inválido')}};r.readAsText(f)};
 render();
