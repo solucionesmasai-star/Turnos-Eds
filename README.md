@@ -128,3 +128,11 @@ La v1.7 distribuía los turnos principalmente mediante plantillas diarias. La v2
 - Se muestra un panel de ciclo con fecha de inicio, término, semana 1/4–4/4 y la fecha exacta de inicio del ciclo siguiente.
 - El motor recalcula cada ciclo visualizado usando el mismo superciclo, cobertura, noches y reglas de transición.
 - VAC y COMP relativos al ciclo base no se arrastran automáticamente a otros ciclos; las licencias médicas por fecha calendario sí se evalúan en la fecha correspondiente.
+
+
+## v2.3 — Exportación de malla y backup de ciclos
+
+- **Exportar JSON** ahora exporta la malla calculada completa del ciclo visualizado: 28 días, nombres, tipo FT/PT, fecha, semana, estado, turno, inicio, fin y reducción de jornada.
+- **Guardar combinación** almacena la combinación actual de patrones/ciclos FT, la semilla y los FT seleccionados dentro del estado compartido de Supabase.
+- **Restaurar backup** devuelve los patrones, semilla y selección a la combinación guardada, genera una nueva versión y conserva la trazabilidad en historial.
+- El backup no reemplaza nombres, VAC, LM ni COMP; su propósito es recuperar exclusivamente la combinación de ciclos elegida.

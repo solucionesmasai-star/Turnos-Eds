@@ -1,4 +1,3 @@
-
 (()=>{
 const SUPER_WORK=[[1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0],[1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,1,0],[0,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0],[0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0],[0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1,0,1,1],[1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,0,1,1,1,0,1],[1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1],[1,1,1,0,1,1,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,0,1],[1,0,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0],[1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0],[1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,0,1,1,1,1,0,1],[1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1],[1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0],[1,1,1,0,1,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0],[1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,0,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1],[1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0],[1,0,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,0,0],[0,1,1,1,0,1,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,0,1,1,1,1,1,1,0,1,1,0,1,1],[1,1,1,1,1,0,0,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1],[1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,1],[1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,0,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,0,1,0,1,1,1,1,0,1],[1,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,0,1,0,0,1,1,1,0,1,1,1,1,1,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1],[1,0,1,1,1,0,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,0,1,1,1,1,1,0,1,1,0,0,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,1,1,0,1,1,0,1,1,1,0,1,1,0,0,1,1,0,1,1,1],[1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,0,1,1,0,1,1,1]];
 const SHIFT={N:['00:00','09:00'],M1:['06:00','15:00'],M2:['07:00','16:00'],B1:['09:00','18:00'],B2:['12:00','21:00'],T1:['14:00','23:00'],T2:['15:00','24:00']};
@@ -37,7 +36,7 @@ const PT=[
  {id:'PT6',days:[5,6],shift:'M2'},{id:'PT7',days:[5,6],shift:'M2'},{id:'PT8',days:[5,6],shift:'B1'}
 ];
 const ANCHOR='2026-10-05';
-let state={version:1,week:0,start:'2026-10-05',selected:Array.from({length:28},(_,i)=>i+1),overrides:{},medicalLeaves:[],history:[],vacation:null,seed:0,workers:Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i})),ptNames:Object.fromEntries(PT.map(p=>[p.id,p.id]))};
+let state={version:1,week:0,start:'2026-10-05',selected:Array.from({length:28},(_,i)=>i+1),overrides:{},medicalLeaves:[],history:[],vacation:null,seed:0,workers:Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i})),ptNames:Object.fromEntries(PT.map(p=>[p.id,p.id])),savedCycleBackup:null};
 try{const saved=JSON.parse(localStorage.getItem('eds-turnos-v11')||localStorage.getItem('eds-turnos-v10')||localStorage.getItem('eds-turnos-v09')||localStorage.getItem('eds-turnos-v08')||'null');if(saved)state={...state,...saved}}catch(e){}
 if(!Array.isArray(state.workers)||!state.workers.length)state.workers=Array.from({length:28},(_,i)=>({id:i+1,name:`Atendedor ${i+1}`,pattern:i}));
 if(!state.ptNames)state.ptNames=Object.fromEntries(PT.map(p=>[p.id,p.id]));
@@ -94,7 +93,7 @@ function save(snapshot=false,immediate=false){
 }
 function setEditingState(){
   const editable=!!cloud.user;
-  ['addWorkerBtn','workersBtn','vacBtn','lmBtn','resetAbsBtn','compBtn','genBtn','cycleStart','importFile'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!editable});
+  ['addWorkerBtn','workersBtn','vacBtn','lmBtn','resetAbsBtn','compBtn','genBtn','saveComboBtn','restoreComboBtn','cycleStart','importFile'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!editable});
   const msg=document.getElementById('editModeHint');
   if(msg)msg.textContent=editable?'Edición habilitada · los cambios se guardan en el espacio compartido.':'Modo invitado · visualización del espacio compartido. Inicia sesión para editar.';
 }
@@ -614,7 +613,79 @@ function moveWeek(delta){
  ui.week=w;persistView();render();
 }
 function returnBaseCycle(){ui.cycleOffset=0;ui.week=0;persistView();render();}
-function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`turnos-eds-v${state.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+function buildCycleCombinationSnapshot(){
+ return {
+   savedAt:new Date().toISOString(),
+   sourceVersion:state.version,
+   seed:state.seed||0,
+   selected:[...state.selected],
+   patterns:state.workers.map(w=>({id:w.id,pattern:mod(w.pattern??((w.id-1)%28),28)}))
+ };
+}
+async function saveCycleCombination(){
+ if(!cloud.user)return alert('Debes iniciar sesión para guardar una combinación.');
+ state.savedCycleBackup=buildCycleCombinationSnapshot();
+ await save(false,true);
+ const when=new Date(state.savedCycleBackup.savedAt).toLocaleString('es-CL');
+ alert(`Combinación guardada correctamente.\nVersión origen: ${state.savedCycleBackup.sourceVersion}\n${when}`);
+ render();
+}
+async function restoreCycleCombination(){
+ if(!cloud.user)return alert('Debes iniciar sesión para restaurar la combinación guardada.');
+ const b=state.savedCycleBackup;
+ if(!b||!Array.isArray(b.patterns)||!b.patterns.length)return alert('No existe una combinación guardada todavía.');
+ if(!confirm(`¿Restaurar la combinación guardada desde la versión ${b.sourceVersion}?\nEsto reemplazará la combinación actual de ciclos FT.`))return;
+ const map=new Map(b.patterns.map(x=>[Number(x.id),Number(x.pattern)]));
+ for(const w of state.workers)if(map.has(w.id))w.pattern=mod(map.get(w.id),28);
+ if(Array.isArray(b.selected))state.selected=b.selected.filter(id=>state.workers.some(w=>w.id===id));
+ state.seed=Number.isFinite(Number(b.seed))?Number(b.seed):0;
+ const before=state.version,n=Number(state.version);state.version=Number.isFinite(n)?n+1:(state.seed+1);
+ state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Backup restaurado desde versión ${b.sourceVersion}; combinación de ciclos FT recuperada (desde v${before}).`});
+ await save(true,true);render();
+}
+function exportJSON(){
+ const schedule=buildSchedule();
+ const dayNames=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+ const people=[];
+ for(const w of workerIds()){
+   people.push({
+     id:`FT${String(w).padStart(2,'0')}`,
+     workerId:w,
+     nombre:workerName(w),
+     tipo:'FT',
+     pattern:workerById(w)?.pattern??null,
+     turnos:Array.from({length:28},(_,d)=>{
+       const x=schedule.days[d].find(z=>z.id==='A'+w);
+       return {fecha:isoFor(d),dia:dayNames[d%7],semana:Math.floor(d/7)+1,status:x?.status||null,turno:x?.shift||null,inicio:x?.shift?SHIFT[x.shift][0]:null,fin:x?.shift?time(endMinute(x)):null,reduccionMin:x?.reduction||0};
+     })
+   });
+ }
+ for(const p of PT){
+   people.push({
+     id:p.id,
+     nombre:state.ptNames[p.id]||p.id,
+     tipo:'PT',
+     turnos:Array.from({length:28},(_,d)=>{
+       const x=schedule.days[d].find(z=>z.id===p.id);
+       return {fecha:isoFor(d),dia:dayNames[d%7],semana:Math.floor(d/7)+1,status:x?.status||null,turno:x?.shift||null,inicio:x?.shift?SHIFT[x.shift][0]:null,fin:x?.shift?time(endMinute(x)):null,reduccionMin:0};
+     })
+   });
+ }
+ const payload={
+   exportType:'malla_turnos_eds',
+   appVersion:'2.3',
+   stateVersion:state.version,
+   exportedAt:new Date().toISOString(),
+   ciclo:{inicio:viewedCycleStartISO(),fin:isoFor(27),offsetDesdeCicloBase:ui.cycleOffset,semanaVisible:ui.week+1},
+   turnos:SHIFT,
+   combinacionCiclos:state.workers.map(w=>({id:w.id,nombre:w.name,pattern:w.pattern??null})),
+   backupGuardado:state.savedCycleBackup||null,
+   malla:people,
+   validaciones:validations(schedule).map(x=>({tipo:x.t,mensaje:x.m}))
+ };
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download=`malla-turnos-${viewedCycleStartISO()}-v${state.version}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
 document.getElementById('prevWeekBtn').onclick=()=>moveWeek(-1);
 document.getElementById('nextWeekBtn').onclick=()=>moveWeek(1);
 document.getElementById('baseCycleBtn').onclick=returnBaseCycle;
@@ -626,9 +697,11 @@ document.getElementById('vacBtn').onclick=vacationModal;
 document.getElementById('compBtn').onclick=()=>absenceModal('COMP');
 document.getElementById('cloudBtn').onclick=cloudModal;
 document.getElementById('genBtn').onclick=generate;
+document.getElementById('saveComboBtn').onclick=saveCycleCombination;
+document.getElementById('restoreComboBtn').onclick=restoreCycleCombination;
 document.getElementById('cycleStart').onchange=e=>{const dt=parseDate(e.target.value);if(dt.getDay()!==1){alert('El inicio del ciclo debe ser lunes.');e.target.value=state.start;return}state.start=e.target.value;ui.cycleOffset=0;ui.week=0;persistView();state.version++;state.seed=0;state.history.push({v:state.version,when:new Date().toLocaleString('es-CL'),note:`Inicio ciclo base cambiado a ${state.start}; navegación calendario reiniciada y superciclo nocturno recalculado.`});save(true);render()};
 document.getElementById('exportBtn').onclick=exportJSON;
-document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state={...state,...JSON.parse(r.result)};save(true);render()}catch(err){alert('JSON inválido')}};r.readAsText(f)};
+document.getElementById('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const payload=JSON.parse(r.result);if(payload?.exportType==='malla_turnos_eds'&&!payload.state)return alert('Este JSON contiene la malla exportada para consulta, no un estado importable de la aplicación.');const incoming=payload?.state||payload;state={...state,...incoming};save(true);render()}catch(err){alert('JSON inválido')}};r.readAsText(f)};
 render();
 initCloud();
 })();
